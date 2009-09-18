@@ -11,10 +11,9 @@ class Fake(object):
         self._provides = {}
     
     def provides(self, method_name):
-        def accept_anything(*args, **kwargs):
-            return None
-        self._provides[method_name] = accept_anything
-        return self
+        call = Call()
+        self._provides[method_name] = call
+        return call
     
     def has_attr(self, **kwargs):
         for kwarg in kwargs:
@@ -25,6 +24,15 @@ class Fake(object):
         if name in my('_provides'):
             return self._provides[name]
         return my(name)
+
+class Call(object):
+    _return_value = None
+    
+    def __call__(self, *args, **kwargs):
+        return self._return_value
+        
+    def returns(self, return_value):
+        self._return_value = return_value
 
 def with_context(test_function):
     @wraps(test_function)

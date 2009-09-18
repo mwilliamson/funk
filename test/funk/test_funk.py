@@ -24,13 +24,15 @@ def test_providing_a_method_without_specifying_arguments_allows_method_to_be_cal
 
 @funk.with_context
 def test_providing_a_method_without_specifying_arguments_allows_method_to_be_called_any_times_with_any_arguments(context):
-    fake = context.fake()
-    fake.provides('save')
+    return_value = "foo"
     
-    fake.save()
-    fake.save(1, 2)
-    fake.save()
-    fake.save(name="Bob")
+    fake = context.fake()
+    fake.provides('save').returns(return_value)
+    
+    assert fake.save() is return_value
+    assert fake.save(1, 2) is return_value
+    assert fake.save() is return_value
+    assert fake.save(name="Bob") is return_value
 
 def test_calling_function_wrapped_in_with_context_raises_exception_if_context_already_set():
     @funk.with_context
