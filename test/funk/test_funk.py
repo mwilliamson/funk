@@ -86,6 +86,45 @@ def test_name_of_fake_is_used_in_exceptions(context):
     assert_raises_str(AssertionError, "Unexpected method call: unnamed.save()", lambda: unnamed.save())
     assert_raises_str(AssertionError, "Unexpected method call: database.save()", lambda: named.save())
 
+@funk.with_context
+def test_expected_methods_can_be_called_once_with_any_arguments_if_no_arguments_specified(context):
+    return_value = "Oh my!"
+    fake = context.fake()
+    fake.expects('save').returns(return_value)
+    
+    assert fake.save("positional", key="word") is return_value
+
+@funk.with_context
+def test_expected_methods_cannot_be_called_more_than_once(context):
+    fake = context.fake()
+    fake.expects('save').returns("Oh my!")
+    
+    assert fake.save("positional", key="word")
+    
+    assert_raises_str(AssertionError,
+                      "Unexpected method call: unnamed.save(positional, key=word)",
+                      lambda: fake.save("positional", key="word"))
+
+@funk.with_context
+def test_expected_methods_can_be_called_in_any_order(context):
+    return_no_args = "Alone!"
+    return_positional = "One is the loneliest number"
+    
+    fake = context.fake()
+    fake.expects("save").with_args().returns(return_no_args)
+    fake.expects("save").with_args("positional").returns(return_positional)
+    
+    assert fake.save("positional") is return_positional
+    assert fake.save() is return_no_args
+    
+    assert_raises_str(AssertionError,
+                      "Unexpected method call: unnamed.save(positional)",
+                      lambda: fake.save("positional"))
+                      
+    assert_raises_str(AssertionError,
+                      "Unexpected method call: unnamed.save()",
+                      lambda: fake.save())
+
 def test_calling_function_wrapped_in_with_context_raises_exception_if_context_already_set():
     @funk.with_context
     def some_function(context):
