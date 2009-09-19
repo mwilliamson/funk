@@ -3,6 +3,7 @@ from nose.tools import assert_equals
 
 import funk
 from funk import FunkyError
+from funk.tools import assert_raises_str
 
 @funk.with_context
 def test_can_create_a_fake_object(context):
@@ -91,10 +92,3 @@ def test_calling_function_wrapped_in_with_context_raises_exception_if_context_al
         pass
         
     assert_raises(FunkyError, lambda: some_function(context=None))
-
-def assert_raises_str(exception, message, function):
-    try:
-        function()
-        raise AssertionException("%s was not raised" % exception)
-    except exception, e:
-        assert_equals(message, str(e))
