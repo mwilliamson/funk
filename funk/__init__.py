@@ -39,7 +39,8 @@ class ProvidedCalls(object):
         return call
     
     def for_method(self, name):
-        return ProvidedCallsForMethod(name, filter(lambda call: call.has_name(name), self._calls), self._fake_name)
+        method_calls = filter(lambda call: call.has_name(name), self._calls)
+        return ProvidedCallsForMethod(name, method_calls, self._fake_name)
     
     def __contains__(self, name):
         return any([call.has_name(name) for call in self._calls])
