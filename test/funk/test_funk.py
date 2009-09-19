@@ -131,6 +131,17 @@ def test_fakes_can_raise_exceptions(context):
     fake.expects('save').raises(RuntimeError("Oh noes!"))
     assert_raises(RuntimeError, lambda: fake.save("anything"))
 
+@funk.with_context
+def test_method_expectations_are_used_in_the_order_they_are_defined(context):
+    first = "One is the loneliest number"
+    second = "Two can be as bad as one"
+    fake = context.fake()
+    fake.expects('save').returns(first)
+    fake.expects('save').returns(second)
+    
+    assert fake.save() is first
+    assert fake.save() is second
+
 def test_function_raises_exception_if_expectations_are_not_satisfied():
     @funk.with_context
     def function(context):
