@@ -1,4 +1,4 @@
-from nose.tools import assert_raises
+from nose.tools import assert_equals
 from funk.tools import assert_raises_str
 
 from funk.error import FunkyError
@@ -67,6 +67,14 @@ def test_is_satisfied_if_called_as_many_times_as_initial_call_count():
     assert not call.is_satisfied()
     call()
     assert call.is_satisfied()
+
+def test_str_of_call_with_no_arguments_only_has_name_of_call():
+    call = Call('save')
+    assert_equals('save', str(call))
+
+def test_str_of_call_with_arguments_shows_those_arguments():
+    call = Call('save').with_args("one", "two", foo="bar", key="word")
+    assert_equals('save(one, two, foo=bar, key=word)', str(call))
 
 def test_call_that_allows_any_number_of_calls_is_always_satisfied():
     call = Call('save')

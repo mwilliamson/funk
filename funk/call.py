@@ -1,4 +1,5 @@
 from funk.error import FunkyError
+from funk.util import function_call_str
 
 class InfiniteCallCount(object):
     def none_remaining(self):
@@ -62,3 +63,8 @@ class Call(object):
 
     def is_satisfied(self):
         return self._call_count.is_satisfied()
+
+    def __str__(self):
+        if self._allowed_args is not None:
+            return function_call_str(self._name, self._allowed_args, self._allowed_kwargs)
+        return self._name

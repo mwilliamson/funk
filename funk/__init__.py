@@ -3,6 +3,7 @@ from funk.error import FunkyError
 from funk.call import Call
 from funk.call import IntegerCallCount
 from funk.call import InfiniteCallCount
+from funk.util import method_call_str
 
 __all__ = ['with_context']
 
@@ -65,8 +66,9 @@ class MockedCalls(object):
         return any([call.has_name(name) for call in self._calls])
         
     def verify(self):
-        if not all([call.is_satisfied() for call in self._calls]):
-            raise AssertionError("Not all expectations were satisfied")
+        for call in self._calls:
+            if not call.is_satisfied():
+                raise AssertionError("Not all expectations were satisfied. Expected call: %s.%s" % (self._fake_name, call))
 
 class MockedCallsForMethod(object):
     def __init__(self, name, calls, fake_name):
@@ -79,9 +81,8 @@ class MockedCallsForMethod(object):
             if call.accepts(args, kwargs):
                 return call(*args, **kwargs)
         
-        args_str = list(args[:])
-        args_str += ['%s=%s' % (key, kwargs[key]) for key in kwargs]
-        raise AssertionError("Unexpected method call: %s.%s(%s)" % (self._fake_name, self._name, ', '.join(args_str)))
+        call_str = method_call_str(self._fake_name, self._name, args, kwargs)
+        raise AssertionError("Unexpected method call: %s" % call_str)
 
 def with_context(test_function):
     @wraps(test_function)

@@ -132,7 +132,7 @@ def test_function_raises_exception_if_expectations_are_not_satisfied():
         fake.expects("save")
         
     assert_raises_str(AssertionError,
-                      "Not all expectations were satisfied",
+                      "Not all expectations were satisfied. Expected call: unnamed.save",
                       function)
 
 def test_calling_function_wrapped_in_with_context_raises_exception_if_context_already_set():
