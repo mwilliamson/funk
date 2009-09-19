@@ -25,13 +25,13 @@ class IntegerCallCount(object):
         return self.none_remaining()
 
 class Call(object):
-    _return_value = None
     _allowed_args = None
     _allowed_kwargs = None
     
     def __init__(self, name, call_count=InfiniteCallCount()):
         self._name = name
         self._call_count = call_count
+        self._action = lambda: None
     
     def has_name(self, name):
         return self._name == name
@@ -51,7 +51,8 @@ class Call(object):
         if not self.accepts(args, kwargs):
             raise FunkyError("Called with wrong arguments")
         self._call_count.decrement()
-        return self._return_value
+        action = self._action
+        return action()
     
     def with_args(self, *args, **kwargs):
         self._allowed_args = args
@@ -59,7 +60,14 @@ class Call(object):
         return self
     
     def returns(self, return_value):
-        self._return_value = return_value
+        self._action = lambda: return_value
+        return self
+
+    def raises(self, error):
+        def action():
+            raise error
+        self._action = action
+        return self
 
     def is_satisfied(self):
         return self._call_count.is_satisfied()

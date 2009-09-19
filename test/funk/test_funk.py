@@ -125,6 +125,12 @@ def test_expected_methods_can_be_called_in_any_order(context):
                       "Unexpected method call: unnamed.save()",
                       lambda: fake.save())
 
+@funk.with_context
+def test_fakes_can_raise_exceptions(context):
+    fake = context.fake()
+    fake.expects('save').raises(RuntimeError("Oh noes!"))
+    assert_raises(RuntimeError, lambda: fake.save("anything"))
+
 def test_function_raises_exception_if_expectations_are_not_satisfied():
     @funk.with_context
     def function(context):

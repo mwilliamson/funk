@@ -21,6 +21,15 @@ def test_returns_return_value_if_set():
     call.returns(return_value)
     assert call() is return_value
 
+def test_raises_exception_if_exception_given():
+    error = RuntimeError("Boo!")
+    call = Call('save').raises(error)
+    try:
+        call()
+        raise AssertionError("Should have thrown RuntimeError")
+    except RuntimeError, e:
+        assert e is error
+
 def test_accepts_returns_true_if_with_args_not_called():
     call = Call('save')
     assert call.accepts((), {})
