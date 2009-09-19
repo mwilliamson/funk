@@ -4,6 +4,9 @@ class InfiniteCallCount(object):
         
     def decrement(self):
         pass
+        
+    def is_satisfied(self):
+        return True
 
 class IntegerCallCount(object):
     def __init__(self, count):
@@ -14,6 +17,9 @@ class IntegerCallCount(object):
         
     def decrement(self):
         self._count -= 1
+        
+    def is_satisfied(self):
+        return self.none_remaining()
 
 class Call(object):
     _return_value = None
@@ -47,3 +53,6 @@ class Call(object):
     
     def returns(self, return_value):
         self._return_value = return_value
+
+    def is_satisfied(self):
+        return self._call_count.is_satisfied()

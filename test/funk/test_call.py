@@ -43,4 +43,17 @@ def test_not_specifying_call_count_allows_any_number_of_calls():
     for x in range(0, 1000):
         assert call.accepts([], {})
         call()
-        
+
+def test_is_satisfied_if_called_as_many_times_as_initial_call_count():
+    call = Call('save', IntegerCallCount(2))
+    assert not call.is_satisfied()
+    call()
+    assert not call.is_satisfied()
+    call()
+    assert call.is_satisfied()
+
+def test_call_that_allows_any_number_of_calls_is_always_satisfied():
+    call = Call('save')
+    for x in range(0, 1000):
+        assert call.is_satisfied()
+        call()
