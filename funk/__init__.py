@@ -1,4 +1,5 @@
 from functools import wraps
+from funk.error import FunkyError
 from funk.call import Call
 
 __all__ = ['with_context']
@@ -70,10 +71,3 @@ def with_context(test_function):
         test_function(*args, **kwargs)
     
     return test_function_with_context
-
-class FunkyError(BaseException):
-    def __init__(self, message):
-        self.message = message
-        
-    def __str__(self):
-        return self.message

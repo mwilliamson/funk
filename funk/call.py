@@ -1,3 +1,5 @@
+from funk.error import FunkyError
+
 class InfiniteCallCount(object):
     def none_remaining(self):
         return False
@@ -43,6 +45,8 @@ class Call(object):
         return True
     
     def __call__(self, *args, **kwargs):
+        if self._call_count.none_remaining():
+            raise FunkyError("")
         self._call_count.decrement()
         return self._return_value
     
