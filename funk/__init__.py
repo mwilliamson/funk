@@ -3,12 +3,13 @@ from functools import wraps
 __all__ = ['with_context']
 
 class Context(object):
-    def fake(self):
-        return Fake()
+    def fake(self, name='unnamed'):
+        return Fake(name)
 
 class Fake(object):
-    def __init__(self):
-        self._provided_calls = ProvidedCalls()
+    def __init__(self, name):
+        self._name = name
+        self._provided_calls = ProvidedCalls(name)
     
     def provides(self, method_name):
         return self._provided_calls.add(method_name)
@@ -21,40 +22,42 @@ class Fake(object):
         my = lambda name: object.__getattribute__(self, name)
         provided_calls = my('_provided_calls')
         if name in provided_calls:
-            return provided_calls.for_name(name)
+            return provided_calls.for_method(name)
         return my(name)
 
 class ProvidedCalls(object):
-    def __init__(self):
+    def __init__(self, fake_name):
         self._calls = []
+        self._fake_name = fake_name
     
     def accepts(self, name, args, kwargs):
-        return any([call.accepts(name, args, kwargs) for call in self._calls])
+        return any([call.accepts(args, kwargs) for call in self.for_method(name)])
     
     def add(self, method_name):
         call = Call(method_name)
         self._calls.append(call)
         return call
     
-    def for_name(self, name):
-        return ProvidedCallsForMethod(name, filter(lambda call: call.has_name(name), self._calls))
+    def for_method(self, name):
+        return ProvidedCallsForMethod(name, filter(lambda call: call.has_name(name), self._calls), self._fake_name)
     
     def __contains__(self, name):
         return any([call.has_name(name) for call in self._calls])
 
 class ProvidedCallsForMethod(object):
-    def __init__(self, name, calls):
+    def __init__(self, name, calls, fake_name):
         self._name = name
         self._calls = calls
+        self._fake_name = fake_name
         
     def __call__(self, *args, **kwargs):
         for call in self._calls:
-            if call.accepts(self._name, args, kwargs):
+            if call.accepts(args, kwargs):
                 return call(*args, **kwargs)
         
         args_str = list(args[:])
         args_str += ['%s=%s' % (key, kwargs[key]) for key in kwargs]
-        raise AssertionError("Unexpected method call: %s(%s)" % (self._name, ', '.join(args_str)))
+        raise AssertionError("Unexpected method call: %s.%s(%s)" % (self._fake_name, self._name, ', '.join(args_str)))
 
 class Call(object):
     _return_value = None
@@ -67,9 +70,7 @@ class Call(object):
     def has_name(self, name):
         return self._name == name
     
-    def accepts(self, name, args, kwargs):
-        if self._name != name:
-            return False
+    def accepts(self, args, kwargs):
         if self._allowed_args is not None and self._allowed_args != args:
             return False
         if self._allowed_kwargs is not None and self._allowed_kwargs != kwargs:
