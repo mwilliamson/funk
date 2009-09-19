@@ -1,4 +1,5 @@
 from nose.tools import assert_raises
+from funk.tools import assert_raises_str
 
 from funk.error import FunkyError
 from funk.call import Call
@@ -51,7 +52,13 @@ def test_error_is_raised_if_called_too_many_times():
     call = Call('save', IntegerCallCount(2))
     call()
     call()
-    assert_raises(FunkyError, call)
+    assert_raises_str(FunkyError, "Cannot call any more times", call)
+    
+def test_error_is_raised_if_called_with_wrong_arguments():
+    call = Call('save')
+    call.with_args("positional")
+    call("positional")
+    assert_raises_str(FunkyError, "Called with wrong arguments", lambda: call("wrong"))
 
 def test_is_satisfied_if_called_as_many_times_as_initial_call_count():
     call = Call('save', IntegerCallCount(2))

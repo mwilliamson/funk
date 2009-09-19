@@ -46,7 +46,9 @@ class Call(object):
     
     def __call__(self, *args, **kwargs):
         if self._call_count.none_remaining():
-            raise FunkyError("")
+            raise FunkyError("Cannot call any more times")
+        if not self.accepts(args, kwargs):
+            raise FunkyError("Called with wrong arguments")
         self._call_count.decrement()
         return self._return_value
     

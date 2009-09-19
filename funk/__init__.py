@@ -7,8 +7,17 @@ from funk.call import InfiniteCallCount
 __all__ = ['with_context']
 
 class Context(object):
+    def __init__(self):
+        self._fakes = []
+    
     def fake(self, name='unnamed'):
-        return Fake(name)
+        fake = Fake(name)
+        self._fakes.append(fake)
+        return fake
+        
+    def verify(self):
+        for fake in self._fakes:
+            fake._verify()
 
 class Fake(object):
     def __init__(self, name):
@@ -31,6 +40,9 @@ class Fake(object):
         if name in mocked_calls:
             return mocked_calls.for_method(name)
         return my(name)
+        
+    def _verify(self):
+        self._mocked_calls.verify()
 
 class MockedCalls(object):
     def __init__(self, fake_name):
@@ -51,6 +63,10 @@ class MockedCalls(object):
     
     def __contains__(self, name):
         return any([call.has_name(name) for call in self._calls])
+        
+    def verify(self):
+        if not all([call.is_satisfied() for call in self._calls]):
+            raise AssertionError("Not all expectations were satisfied")
 
 class MockedCallsForMethod(object):
     def __init__(self, name, calls, fake_name):
@@ -72,7 +88,9 @@ def with_context(test_function):
     def test_function_with_context(*args, **kwargs):
         if 'context' in kwargs:
             raise FunkyError("context has already been set")
-        kwargs['context'] = Context()
+        context = Context()
+        kwargs['context'] = context
         test_function(*args, **kwargs)
+        context.verify()
     
     return test_function_with_context
