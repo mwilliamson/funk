@@ -9,7 +9,7 @@ class Context(object):
 class Fake(object):
     def __init__(self, name):
         self._name = name
-        self._provided_calls = ProvidedCalls(name)
+        self._provided_calls = MockedCalls(name)
     
     def provides(self, method_name):
         return self._provided_calls.add(method_name)
@@ -25,7 +25,7 @@ class Fake(object):
             return provided_calls.for_method(name)
         return my(name)
 
-class ProvidedCalls(object):
+class MockedCalls(object):
     def __init__(self, fake_name):
         self._calls = []
         self._fake_name = fake_name
@@ -40,12 +40,12 @@ class ProvidedCalls(object):
     
     def for_method(self, name):
         method_calls = filter(lambda call: call.has_name(name), self._calls)
-        return ProvidedCallsForMethod(name, method_calls, self._fake_name)
+        return MockedCallsForMethod(name, method_calls, self._fake_name)
     
     def __contains__(self, name):
         return any([call.has_name(name) for call in self._calls])
 
-class ProvidedCallsForMethod(object):
+class MockedCallsForMethod(object):
     def __init__(self, name, calls, fake_name):
         self._name = name
         self._calls = calls
