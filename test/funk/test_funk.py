@@ -47,6 +47,34 @@ def test_can_specify_no_arguments_when_using_provides(context):
     assert_raises_str(AssertionError, "Unexpected method call: save(one, two, foo=bar, key=word)", lambda: fake.save("one", "two", key="word", foo="bar"))
     assert fake.save() is return_value
 
+@funk.with_context
+def test_can_specify_arguments_using_equality_on_instances_when_using_provides(context):
+    return_value = "foo"
+    
+    fake = context.fake()
+    fake.provides('save').with_args("one", "two", key="word", foo="bar").returns(return_value)
+    
+    assert fake.save("one", "two", key="word", foo="bar") is return_value
+    assert_raises_str(AssertionError, "Unexpected method call: save()", lambda: fake.save())
+    assert_raises_str(AssertionError, "Unexpected method call: save(positional)", lambda: fake.save("positional"))
+    assert_raises_str(AssertionError, "Unexpected method call: save(key=word)", lambda: fake.save(key="word"))
+    assert fake.save("one", "two", key="word", foo="bar") is return_value
+
+@funk.with_context
+def test_same_method_can_return_different_values_for_different_arguments_using_provides(context):
+    return_foo = "foo"
+    return_bar = "bar"
+    
+    fake = context.fake()
+    fake.provides('save').with_args("one", "two", key="word", foo="bar").returns(return_foo)
+    fake.provides('save').with_args("positional").returns(return_bar)
+    
+    assert fake.save("one", "two", key="word", foo="bar") is return_foo
+    assert_raises_str(AssertionError, "Unexpected method call: save()", lambda: fake.save())
+    assert fake.save("positional") is return_bar
+    assert_raises_str(AssertionError, "Unexpected method call: save(key=word)", lambda: fake.save(key="word"))
+    assert fake.save("one", "two", key="word", foo="bar") is return_foo
+
 def test_calling_function_wrapped_in_with_context_raises_exception_if_context_already_set():
     @funk.with_context
     def some_function(context):
