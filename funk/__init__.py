@@ -1,4 +1,5 @@
 from functools import wraps
+from funk.call import Call
 
 __all__ = ['with_context']
 
@@ -59,35 +60,6 @@ class MockedCallsForMethod(object):
         args_str = list(args[:])
         args_str += ['%s=%s' % (key, kwargs[key]) for key in kwargs]
         raise AssertionError("Unexpected method call: %s.%s(%s)" % (self._fake_name, self._name, ', '.join(args_str)))
-
-class Call(object):
-    _return_value = None
-    _allowed_args = None
-    _allowed_kwargs = None
-    
-    def __init__(self, name):
-        self._name = name
-    
-    def has_name(self, name):
-        return self._name == name
-    
-    def accepts(self, args, kwargs):
-        if self._allowed_args is not None and self._allowed_args != args:
-            return False
-        if self._allowed_kwargs is not None and self._allowed_kwargs != kwargs:
-            return False
-        return True
-    
-    def __call__(self, *args, **kwargs):
-        return self._return_value
-    
-    def with_args(self, *args, **kwargs):
-        self._allowed_args = args
-        self._allowed_kwargs = kwargs
-        return self
-    
-    def returns(self, return_value):
-        self._return_value = return_value
 
 def with_context(test_function):
     @wraps(test_function)

@@ -28,3 +28,18 @@ def test_accepts_returns_true_if_arguments_match_those_set_by_with_args():
     assert not call.accepts((1, 2, 3), {"name": "Bob"})
     assert not call.accepts((1, ), {"name": "Bob"})
     assert call.accepts((1, 2), {"name": "Bob"})
+
+def test_accepts_returns_true_if_call_count_is_greater_than_zero():
+    call = Call('save', 2)
+    assert call.accepts([], {})
+    call()
+    assert call.accepts([], {})
+    call()
+    assert not call.accepts([], {})
+
+def test_not_specifying_call_count_allows_any_number_of_calls():
+    call = Call('save')
+    for x in range(0, 1000):
+        assert call.accepts([], {})
+        call()
+        
