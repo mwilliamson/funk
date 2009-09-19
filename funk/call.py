@@ -1,16 +1,26 @@
-class Infinity(object):
-    def __eq__(self, other):
-        return isinstance(other, type(self))
+class InfiniteCallCount(object):
+    def none_remaining(self):
+        return False
         
-    def __sub__(self, by):
-        return self
+    def decrement(self):
+        pass
+
+class IntegerCallCount(object):
+    def __init__(self, count):
+        self._count = count
+    
+    def none_remaining(self):
+        return self._count <= 0
+        
+    def decrement(self):
+        self._count -= 1
 
 class Call(object):
     _return_value = None
     _allowed_args = None
     _allowed_kwargs = None
     
-    def __init__(self, name, call_count=Infinity()):
+    def __init__(self, name, call_count=InfiniteCallCount()):
         self._name = name
         self._call_count = call_count
     
@@ -18,7 +28,7 @@ class Call(object):
         return self._name == name
     
     def accepts(self, args, kwargs):
-        if self._call_count == 0:
+        if self._call_count.none_remaining():
             return False
         if self._allowed_args is not None and self._allowed_args != args:
             return False
@@ -27,7 +37,7 @@ class Call(object):
         return True
     
     def __call__(self, *args, **kwargs):
-        self._call_count -= 1
+        self._call_count.decrement()
         return self._return_value
     
     def with_args(self, *args, **kwargs):

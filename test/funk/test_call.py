@@ -1,4 +1,5 @@
-from funk import Call
+from funk.call import Call
+from funk.call import IntegerCallCount
 
 def test_has_name_returns_true_if_passed_name_matches_method_name():
     call = Call('save')
@@ -30,7 +31,7 @@ def test_accepts_returns_true_if_arguments_match_those_set_by_with_args():
     assert call.accepts((1, 2), {"name": "Bob"})
 
 def test_accepts_returns_true_if_call_count_is_greater_than_zero():
-    call = Call('save', 2)
+    call = Call('save', IntegerCallCount(2))
     assert call.accepts([], {})
     call()
     assert call.accepts([], {})
