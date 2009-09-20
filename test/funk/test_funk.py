@@ -162,6 +162,16 @@ def test_fakes_can_expect_calls(context):
     assert_raises_str(AssertionError, "Unexpected invocation: save()", fake)
     assert_raises_str(AssertionError, "Unexpected invocation: save(positional, key=word)", lambda: fake("positional", key="word"))
     
+def test_function_raises_exception_if_expectations_of_calls_on_fake_are_not_satisfied():
+    @funk.with_context
+    def function(context):
+        fake = context.fake()
+        fake.expects_call()
+        
+    assert_raises_str(AssertionError,
+                      "Not all expectations were satisfied. Expected call: unnamed",
+                      function)
+    
 @funk.with_context
 def test_fakes_can_provide_calls(context):
     pass

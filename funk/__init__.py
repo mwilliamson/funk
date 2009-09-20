@@ -27,13 +27,13 @@ class Fake(object):
         self._mocked_calls = MockedCalls(name)
     
     def expects(self, method_name):
-        return self._mocked_calls.add(method_name, IntegerCallCount(1))
+        return self._mocked_calls.add_method_call(method_name, IntegerCallCount(1))
     
     def provides(self, method_name):
-        return self._mocked_calls.add(method_name, InfiniteCallCount())
+        return self._mocked_calls.add_method_call(method_name, InfiniteCallCount())
     
     def expects_call(self):
-        return self.expects(self)
+        return self._mocked_calls.add_function_call(IntegerCallCount(1))
     
     def has_attr(self, **kwargs):
         for kwarg in kwargs:
@@ -54,29 +54,39 @@ class Fake(object):
 
 class MockedCalls(object):
     def __init__(self, fake_name):
-        self._calls = []
+        self._method_calls = []
+        self._function_calls = []
         self._fake_name = fake_name
     
-    def add(self, method_name, call_count):
+    def add_method_call(self, method_name, call_count):
         call = Call(method_name, call_count)
-        self._calls.append(call)
+        self._method_calls.append(call)
         return call
     
-    def for_self(self, fake):
-        calls = filter(lambda call: call.has_name(fake), self._calls)
-        return MockedCallsForFunction(self._fake_name, calls)
+    def add_function_call(self, call_count):
+        call = Call(self._fake_name, call_count)
+        self._function_calls.append(call)
+        return call
     
     def for_method(self, name):
-        method_calls = filter(lambda call: call.has_name(name), self._calls)
+        method_calls = filter(lambda call: call.has_name(name), self._method_calls)
         return MockedCallsForFunction("%s.%s" %(self._fake_name, name), method_calls)
     
+    def for_self(self, fake):
+        return MockedCallsForFunction(self._fake_name, self._function_calls)
+    
     def __contains__(self, name):
-        return any([call.has_name(name) for call in self._calls])
+        return any([call.has_name(name) for call in self._method_calls])
         
     def verify(self):
-        for call in self._calls:
-            if not call.is_satisfied():
-                raise AssertionError("Not all expectations were satisfied. Expected call: %s.%s" % (self._fake_name, call))
+        for call in self._method_calls:
+            self._verify_call(call, "%s.%s" % (self._fake_name, call))
+        for call in self._function_calls:
+            self._verify_call(call, self._fake_name)
+                
+    def _verify_call(self, call, name):
+        if not call.is_satisfied():
+            raise AssertionError("Not all expectations were satisfied. Expected call: %s" % name)
 
 class MockedCallsForFunction(object):
     def __init__(self, name, calls):
