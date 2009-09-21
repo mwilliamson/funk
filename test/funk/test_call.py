@@ -4,6 +4,7 @@ from funk.tools import assert_raises_str
 from funk.error import FunkyError
 from funk.call import Call
 from funk.call import IntegerCallCount
+from funk.matchers import Matcher
 
 def test_has_name_returns_true_if_passed_name_matches_method_name():
     call = Call('save')
@@ -90,4 +91,18 @@ def test_call_that_allows_any_number_of_calls_is_always_satisfied():
     for x in range(0, 1000):
         assert call.is_satisfied()
         call()
-
+        
+def test_can_use_matchers_instead_of_values_for_with_args():
+    class BlahMatcher(Matcher):
+        def matches(self, other):
+            return other == "Blah"
+            
+    return_value = "Whoopee!"
+    call = Call('save').with_args(BlahMatcher()).returns(return_value)
+    
+    assert call.accepts(["Blah"], {})
+    assert not call.accepts([], {})
+    assert not call.accepts([], {'key': 'word'})
+    assert not call.accepts(["positional"], {})
+    assert not call.accepts(["positional"], {'key': 'word'})
+    assert call("Blah") is return_value

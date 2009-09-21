@@ -4,6 +4,7 @@ from nose.tools import assert_equals
 import funk
 from funk import FunkyError
 from funk.tools import assert_raises_str
+from funk.matchers import Matcher
 
 @funk.with_context
 def test_can_create_a_fake_object(context):
@@ -175,6 +176,22 @@ def test_function_raises_exception_if_expectations_of_calls_on_fake_are_not_sati
 @funk.with_context
 def test_fakes_can_provide_calls(context):
     pass
+
+@funk.with_context
+def test_can_use_matchers_instead_of_values(context):
+    class BlahMatcher(Matcher):
+        def matches(self, other):
+            return other == "Blah"
+            
+    return_value = "Whoopee!"
+    fake = context.fake()
+    fake.expects('save').with_args(BlahMatcher()).returns(return_value)
+    
+    assert fake.save("Blah") is return_value
+    assert_raises(AssertionError, lambda: fake.save())
+    assert_raises(AssertionError, lambda: fake.save(key="word"))
+    assert_raises(AssertionError, lambda: fake.save("positional"))
+    assert_raises(AssertionError, lambda: fake.save("positional", key="word"))
 
 def test_calling_function_wrapped_in_with_context_raises_exception_if_context_already_set():
     @funk.with_context

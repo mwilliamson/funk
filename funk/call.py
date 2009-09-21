@@ -1,5 +1,7 @@
 from funk.error import FunkyError
 from funk.util import function_call_str
+from funk.matchers import Matcher
+from funk.matchers import equal_to
 
 class InfiniteCallCount(object):
     def none_remaining(self):
@@ -39,8 +41,11 @@ class Call(object):
     def accepts(self, args, kwargs):
         if self._call_count.none_remaining():
             return False
-        if self._allowed_args is not None and self._allowed_args != args:
-            return False
+        if self._allowed_args is not None:
+            if len(self._allowed_args) != len(args):
+                return False
+            if not all(map(lambda (matcher, arg): matcher.matches(arg), zip(self._allowed_args, args))):
+                return False
         if self._allowed_kwargs is not None and self._allowed_kwargs != kwargs:
             return False
         return True
@@ -55,7 +60,7 @@ class Call(object):
         return action()
     
     def with_args(self, *args, **kwargs):
-        self._allowed_args = args
+        self._allowed_args = tuple(map(self._to_matcher, args))
         self._allowed_kwargs = kwargs
         return self
     
@@ -72,7 +77,12 @@ class Call(object):
     def is_satisfied(self):
         return self._call_count.is_satisfied()
 
+    def _to_matcher(self, value):
+        if isinstance(value, Matcher):
+            return value
+        return equal_to(value)
+
     def __str__(self):
         if self._allowed_args is not None:
-            return function_call_str(self._name, self._allowed_args, self._allowed_kwargs)
+            return function_call_str(self._name, map(str, self._allowed_args), self._allowed_kwargs)
         return self._name
