@@ -178,7 +178,7 @@ def test_fakes_can_provide_calls(context):
     pass
 
 @funk.with_context
-def test_can_use_matchers_instead_of_values(context):
+def test_can_use_matchers_instead_of_values_for_positional_arguments(context):
     class BlahMatcher(Matcher):
         def matches(self, other):
             return other == "Blah"
@@ -187,11 +187,29 @@ def test_can_use_matchers_instead_of_values(context):
     fake = context.fake()
     fake.expects('save').with_args(BlahMatcher()).returns(return_value)
     
-    assert fake.save("Blah") is return_value
     assert_raises(AssertionError, lambda: fake.save())
     assert_raises(AssertionError, lambda: fake.save(key="word"))
     assert_raises(AssertionError, lambda: fake.save("positional"))
     assert_raises(AssertionError, lambda: fake.save("positional", key="word"))
+    
+    assert fake.save("Blah") is return_value
+    
+@funk.with_context
+def test_can_use_matchers_instead_of_values_for_keyword_arguments(context):
+    class BlahMatcher(Matcher):
+        def matches(self, other):
+            return other == "Blah"
+            
+    return_value = "Whoopee!"
+    fake = context.fake()
+    fake.expects('save').with_args(value=BlahMatcher()).returns(return_value)
+    
+    assert_raises(AssertionError, lambda: fake.save())
+    assert_raises(AssertionError, lambda: fake.save(key="word"))
+    assert_raises(AssertionError, lambda: fake.save("positional"))
+    assert_raises(AssertionError, lambda: fake.save("positional", key="word"))
+    
+    assert fake.save(value="Blah") is return_value
 
 def test_calling_function_wrapped_in_with_context_raises_exception_if_context_already_set():
     @funk.with_context

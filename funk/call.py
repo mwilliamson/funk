@@ -46,8 +46,14 @@ class Call(object):
                 return False
             if not all(map(lambda (matcher, arg): matcher.matches(arg), zip(self._allowed_args, args))):
                 return False
-        if self._allowed_kwargs is not None and self._allowed_kwargs != kwargs:
-            return False
+        if self._allowed_kwargs is not None:
+            if len(self._allowed_kwargs) != len(kwargs):
+                return False
+            for key in self._allowed_kwargs:
+                if key not in kwargs:
+                    return False
+                if not self._allowed_kwargs[key].matches(kwargs[key]):
+                    return False
         return True
     
     def __call__(self, *args, **kwargs):
@@ -61,7 +67,7 @@ class Call(object):
     
     def with_args(self, *args, **kwargs):
         self._allowed_args = tuple(map(self._to_matcher, args))
-        self._allowed_kwargs = kwargs
+        self._allowed_kwargs = dict([(key, self._to_matcher(kwargs[key])) for key in kwargs])
         return self
     
     def returns(self, return_value):

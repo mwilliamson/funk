@@ -92,7 +92,7 @@ def test_call_that_allows_any_number_of_calls_is_always_satisfied():
         assert call.is_satisfied()
         call()
         
-def test_can_use_matchers_instead_of_values_for_with_args():
+def test_can_use_matchers_instead_of_values_for_positional_arguments_when_using_with_args():
     class BlahMatcher(Matcher):
         def matches(self, other):
             return other == "Blah"
@@ -106,3 +106,20 @@ def test_can_use_matchers_instead_of_values_for_with_args():
     assert not call.accepts(["positional"], {})
     assert not call.accepts(["positional"], {'key': 'word'})
     assert call("Blah") is return_value
+
+def test_can_use_matchers_instead_of_values_for_keyword_arguments_when_using_with_args():
+    class BlahMatcher(Matcher):
+        def matches(self, other):
+            return other == "Blah"
+            
+    return_value = "Whoopee!"
+    call = Call('save').with_args(value=BlahMatcher()).returns(return_value)
+    
+    assert call.accepts([], {'value': 'Blah'})
+    assert not call.accepts([], {})
+    assert not call.accepts([], {'key': 'word'})
+    assert not call.accepts(["positional"], {})
+    assert not call.accepts(["blah", "positional"], {})
+    assert not call.accepts(["positional"], {'key': 'word'})
+    assert not call.accepts([], {'key': 'word', 'value': 'Blah'})
+    assert call(value="Blah") is return_value
