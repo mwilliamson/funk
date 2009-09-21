@@ -163,6 +163,16 @@ def test_fakes_can_expect_calls(context):
     assert_raises_str(AssertionError, "Unexpected invocation: save()", fake)
     assert_raises_str(AssertionError, "Unexpected invocation: save(positional, key=word)", lambda: fake("positional", key="word"))
     
+@funk.with_context
+def test_fakes_can_expect_calls_with_args(context):
+    return_value = "Hello!"
+    fake = context.fake('save')
+    assert_raises_str(AssertionError, "Unexpected invocation: save()", fake)
+    fake.expects_call().with_args("positional").returns(return_value)
+    assert_raises_str(AssertionError, "Unexpected invocation: save()", fake)
+    assert_raises_str(AssertionError, "Unexpected invocation: save(positional, key=word)", lambda: fake("positional", key="word"))
+    assert fake("positional") is return_value
+    
 def test_function_raises_exception_if_expectations_of_calls_on_fake_are_not_satisfied():
     @funk.with_context
     def function(context):
@@ -175,7 +185,25 @@ def test_function_raises_exception_if_expectations_of_calls_on_fake_are_not_sati
     
 @funk.with_context
 def test_fakes_can_provide_calls(context):
-    pass
+    return_value = "Hello!"
+    fake = context.fake('save')
+    assert_raises_str(AssertionError, "Unexpected invocation: save()", fake)
+    fake.provides_call().returns(return_value)
+    assert fake() is return_value
+    assert fake() is return_value
+    fake("positional", key="word") is return_value
+    
+@funk.with_context
+def test_fakes_can_provide_calls_with_args(context):
+    return_value = "Hello!"
+    fake = context.fake('save')
+    assert_raises_str(AssertionError, "Unexpected invocation: save()", fake)
+    fake.provides_call().with_args("positional").returns(return_value)
+    
+    assert fake("positional") is return_value
+    
+    assert_raises_str(AssertionError, "Unexpected invocation: save()", fake)
+    assert_raises_str(AssertionError, "Unexpected invocation: save(positional, key=word)", lambda: fake("positional", key="word"))
 
 @funk.with_context
 def test_can_use_matchers_instead_of_values_for_positional_arguments(context):

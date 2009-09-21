@@ -35,6 +35,9 @@ class Fake(object):
     def expects_call(self):
         return self._mocked_calls.add_function_call(IntegerCallCount(1))
     
+    def provides_call(self):
+        return self._mocked_calls.add_function_call(InfiniteCallCount())
+    
     def has_attr(self, **kwargs):
         for kwarg in kwargs:
             setattr(self, kwarg, kwargs[kwarg])
