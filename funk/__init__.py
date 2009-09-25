@@ -49,7 +49,7 @@ class Mock(object):
         return my(name)
         
     def __call__(self, *args, **kwargs):
-        return self._mocked_calls.for_self(self)(*args, **kwargs)
+        return self._mocked_calls.for_self()(*args, **kwargs)
         
     def _verify(self):
         self._mocked_calls.verify()
@@ -74,7 +74,7 @@ class MockedCalls(object):
         method_calls = filter(lambda call: call.has_name(name), self._method_calls)
         return MockedCallsForFunction("%s.%s" %(self._mock_name, name), method_calls)
     
-    def for_self(self, mock):
+    def for_self(self):
         return MockedCallsForFunction(self._mock_name, self._function_calls)
     
     def __contains__(self, name):
