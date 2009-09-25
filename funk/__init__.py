@@ -10,18 +10,18 @@ __all__ = ['with_context']
 
 class Context(object):
     def __init__(self):
-        self._fakes = []
+        self._mocks = []
     
-    def fake(self, name='unnamed'):
-        fake = Fake(name)
-        self._fakes.append(fake)
-        return fake
+    def mock(self, name='unnamed'):
+        mock = Mock(name)
+        self._mocks.append(mock)
+        return mock
         
     def verify(self):
-        for fake in self._fakes:
-            fake._verify()
+        for mock in self._mocks:
+            mock._verify()
 
-class Fake(object):
+class Mock(object):
     def __init__(self, name):
         self._name = name
         self._mocked_calls = MockedCalls(name)
@@ -56,10 +56,10 @@ class Fake(object):
         self._mocked_calls.verify()
 
 class MockedCalls(object):
-    def __init__(self, fake_name):
+    def __init__(self, mock_name):
         self._method_calls = []
         self._function_calls = []
-        self._fake_name = fake_name
+        self._mock_name = mock_name
     
     def add_method_call(self, method_name, call_count):
         call = Call(method_name, call_count)
@@ -67,25 +67,25 @@ class MockedCalls(object):
         return call
     
     def add_function_call(self, call_count):
-        call = Call(self._fake_name, call_count)
+        call = Call(self._mock_name, call_count)
         self._function_calls.append(call)
         return call
     
     def for_method(self, name):
         method_calls = filter(lambda call: call.has_name(name), self._method_calls)
-        return MockedCallsForFunction("%s.%s" %(self._fake_name, name), method_calls)
+        return MockedCallsForFunction("%s.%s" %(self._mock_name, name), method_calls)
     
-    def for_self(self, fake):
-        return MockedCallsForFunction(self._fake_name, self._function_calls)
+    def for_self(self, mock):
+        return MockedCallsForFunction(self._mock_name, self._function_calls)
     
     def __contains__(self, name):
         return any([call.has_name(name) for call in self._method_calls])
         
     def verify(self):
         for call in self._method_calls:
-            self._verify_call(call, "%s.%s" % (self._fake_name, call))
+            self._verify_call(call, "%s.%s" % (self._mock_name, call))
         for call in self._function_calls:
-            self._verify_call(call, self._fake_name)
+            self._verify_call(call, self._mock_name)
                 
     def _verify_call(self, call, name):
         if not call.is_satisfied():
