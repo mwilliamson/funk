@@ -3,7 +3,6 @@ from funk.error import FunkyError
 from funk.call import Call
 from funk.call import IntegerCallCount
 from funk.call import InfiniteCallCount
-from funk.util import method_call_str
 from funk.util import function_call_str
 
 __all__ = ['with_context']
