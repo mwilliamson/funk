@@ -208,7 +208,7 @@ def test_mocks_can_provide_calls_with_args(context):
 @funk.with_context
 def test_can_use_matchers_instead_of_values_for_positional_arguments(context):
     class BlahMatcher(Matcher):
-        def matches(self, other):
+        def matches(self, other, failure_output):
             return other == "Blah"
             
     return_value = "Whoopee!"
@@ -225,7 +225,7 @@ def test_can_use_matchers_instead_of_values_for_positional_arguments(context):
 @funk.with_context
 def test_can_use_matchers_instead_of_values_for_keyword_arguments(context):
     class BlahMatcher(Matcher):
-        def matches(self, other):
+        def matches(self, other, failure_output):
             return other == "Blah"
             
     return_value = "Whoopee!"

@@ -94,7 +94,7 @@ def test_call_that_allows_any_number_of_calls_is_always_satisfied():
         
 def test_can_use_matchers_instead_of_values_for_positional_arguments_when_using_with_args():
     class BlahMatcher(Matcher):
-        def matches(self, other):
+        def matches(self, other, failure_output):
             return other == "Blah"
             
     return_value = "Whoopee!"
@@ -109,7 +109,7 @@ def test_can_use_matchers_instead_of_values_for_positional_arguments_when_using_
 
 def test_can_use_matchers_instead_of_values_for_keyword_arguments_when_using_with_args():
     class BlahMatcher(Matcher):
-        def matches(self, other):
+        def matches(self, other, failure_output):
             return other == "Blah"
             
     return_value = "Whoopee!"

@@ -29,24 +29,32 @@ def test_assert_raises_str_fails_if_messages_do_not_match():
 
 def test_assert_that_passes_if_matcher_returns_true():
     class TrueMatcher(Matcher):
-        def matches(self, value):
+        def matches(self, value, failure_out):
             return True
             
     assert_that("Anything", TrueMatcher())
 
 def test_assert_that_raises_assertion_error_if_matcher_returns_false():
     class FalseMatcher(Matcher):
-        def matches(self, value):
+        def matches(self, value, failure_out):
             return False
             
     assert_raises(AssertionError, lambda: assert_that("Anything", FalseMatcher()))
 
 def test_assert_that_raises_assertion_error_describing_expected_and_actual_results():
-    class FalseMatcher(Matcher):
-        def matches(self, value):
-            return False
+    class HasZeroLength(Matcher):
+        def matches(self, value, failure_out):
+            passed = len(value) == 0
+            
+            if not passed:
+                failure_out.append("<value of length %s>" % len(value))
+            
+            return passed
             
         def __str__(self):
-            return "<no possible value>"
+            return "<value of length zero>"
             
-    assert_raises_str(AssertionError, "Expected: <no possible value>\nbut got: Anything", lambda: assert_that("Anything", FalseMatcher()))
+    assert_that([], HasZeroLength())
+    assert_raises_str(AssertionError, 
+                      "Expected: <value of length zero>\nbut got: <value of length 8>",
+                      lambda: assert_that("Anything", HasZeroLength()))

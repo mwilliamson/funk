@@ -6,7 +6,7 @@ class Matcher(object):
     pass
 
 class AnyValue(Matcher):
-    def matches(self, other):
+    def matches(self, value, failure_output):
         return True
         
     def __str__(self):
@@ -19,11 +19,21 @@ class IsA(Matcher):
     def __init__(self, type_):
         self._type = type_
         
-    def matches(self, other):
-        return isinstance(other, self._type)
+    def matches(self, value, failure_output):
+        passed = isinstance(value, self._type)
+        if not passed:
+            failure_output.append(self._describe(type(value)))
+        return passed
         
     def __str__(self):
-        return "<value of type: %s.%s>" % (self._type.__module__, self._type.__name__)
+        return self._describe(self._type)
+        
+    def _describe(self, value_type):
+        if value_type.__module__ == "__builtin__":
+            module_prefix = ''
+        else:
+            module_prefix = '%s.' % value_type.__module__
+        return "<value of type: %s%s>" % (module_prefix, value_type.__name__)
 
 def is_a(type_):
     return IsA(type_)
@@ -32,8 +42,16 @@ class HasAttr(Matcher):
     def __init__(self, attributes):
         self._attributes = attributes
         
-    def matches(self, other):
-        return all((getattr(other, key) == self._attributes[key] for key in self._attributes))
+    def matches(self, value, failure_output):
+        for key in self._attributes:
+            if not hasattr(value, key):
+                failure_output.append("<value without attribute: %s>" % key)
+                return False
+            attr_value = getattr(value, key)
+            if attr_value != self._attributes[key]:
+                failure_output.append("<value with attribute: %s=%s>" % (key, attr_value))
+                return False
+        return True
         
     def __str__(self):
         return "<value with attributes: %s>" % arguments_str([], self._attributes)
@@ -45,8 +63,11 @@ class EqualTo(Matcher):
     def __init__(self, value):
         self._value = value
         
-    def matches(self, other):
-        return self._value == other
+    def matches(self, other, failure_output):
+        passed = self._value == other
+        if not passed:
+            failure_output.append(str(other))
+        return passed
         
     def __str__(self):
         return str(self._value)

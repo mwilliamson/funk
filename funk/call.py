@@ -44,7 +44,7 @@ class Call(object):
         if self._allowed_args is not None:
             if len(self._allowed_args) != len(args):
                 return False
-            if not all(map(lambda (matcher, arg): matcher.matches(arg), zip(self._allowed_args, args))):
+            if not all(map(lambda (matcher, arg): matcher.matches(arg, []), zip(self._allowed_args, args))):
                 return False
         if self._allowed_kwargs is not None:
             if len(self._allowed_kwargs) != len(kwargs):
@@ -52,7 +52,7 @@ class Call(object):
             for key in self._allowed_kwargs:
                 if key not in kwargs:
                     return False
-                if not self._allowed_kwargs[key].matches(kwargs[key]):
+                if not self._allowed_kwargs[key].matches(kwargs[key], []):
                     return False
         return True
     
