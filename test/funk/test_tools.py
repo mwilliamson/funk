@@ -1,6 +1,8 @@
 from nose.tools import assert_raises
 
 from funk.tools import assert_raises_str
+from funk.tools import assert_that
+from funk.matchers import Matcher
 
 def test_assert_raises_str_passes_if_test_raises_specified_exception_with_correct_message():
     def func():
@@ -24,3 +26,17 @@ def test_assert_raises_str_fails_if_messages_do_not_match():
     def func():
         raise TypeError("Oh dear.")
     assert_raises(AssertionError, lambda: assert_raises_str(TypeError, "Oh noes!", func))
+
+def test_assert_that_passes_if_matcher_returns_true():
+    class TrueMatcher(Matcher):
+        def matches(self, value):
+            return True
+            
+    assert_that("Anything", TrueMatcher())
+
+def test_assert_that_raises_assertion_error_if_matcher_returns_false():
+    class FalseMatcher(Matcher):
+        def matches(self, value):
+            return False
+            
+    assert_raises(AssertionError, lambda: assert_that("Anything", FalseMatcher()))

@@ -9,3 +9,7 @@ def assert_raises_str(exception, message, function):
         assert_equals(message, str(e))
     if not passed:
         raise AssertionError("%s was not raised" % exception.__name__)
+
+def assert_that(value, matcher):
+    if not matcher.matches(value):
+        raise AssertionError()
