@@ -40,3 +40,13 @@ def test_assert_that_raises_assertion_error_if_matcher_returns_false():
             return False
             
     assert_raises(AssertionError, lambda: assert_that("Anything", FalseMatcher()))
+
+def test_assert_that_raises_assertion_error_describing_expected_and_actual_results():
+    class FalseMatcher(Matcher):
+        def matches(self, value):
+            return False
+            
+        def __str__(self):
+            return "<no possible value>"
+            
+    assert_raises_str(AssertionError, "Expected: <no possible value>\nbut got: Anything", lambda: assert_that("Anything", FalseMatcher()))

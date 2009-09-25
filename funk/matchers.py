@@ -23,7 +23,7 @@ class IsA(Matcher):
         return isinstance(other, self._type)
         
     def __str__(self):
-        return "<type: %s.%s>" % (self._type.__module__, self._type.__name__)
+        return "<value of type: %s.%s>" % (self._type.__module__, self._type.__name__)
 
 def is_a(type_):
     return IsA(type_)
@@ -36,7 +36,7 @@ class HasAttr(Matcher):
         return all((getattr(other, key) == self._attributes[key] for key in self._attributes))
         
     def __str__(self):
-        return "<attributes: %s>" % arguments_str([], self._attributes)
+        return "<value with attributes: %s>" % arguments_str([], self._attributes)
     
 def has_attr(**attributes):
     return HasAttr(attributes)

@@ -12,4 +12,4 @@ def assert_raises_str(exception, message, function):
 
 def assert_that(value, matcher):
     if not matcher.matches(value):
-        raise AssertionError()
+        raise AssertionError("Expected: %s\nbut got: %s" % (matcher, value))

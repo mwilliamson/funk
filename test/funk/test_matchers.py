@@ -20,7 +20,7 @@ def test_is_a_matches_on_type():
 def test_is_a_str_shows_type():
     class SomeClass(object):
         pass
-    assert_equals(str(is_a(SomeClass)), "<type: test.funk.test_matchers.SomeClass>")
+    assert_equals(str(is_a(SomeClass)), "<value of type: test.funk.test_matchers.SomeClass>")
 
 def test_has_attr_matches_on_attributes():
     class Rectangle(object):
@@ -35,7 +35,7 @@ def test_has_attr_matches_on_attributes():
     assert not matcher.matches(Rectangle(40, 30))
     
 def test_has_attr_str_contains_all_attributes():
-    assert_equals(str(has_attr(what="else", key="word")), "<attributes: what=else, key=word>")
+    assert_equals(str(has_attr(what="else", key="word")), "<value with attributes: what=else, key=word>")
 
 def test_equal_to_matches_on_equality():
     assert equal_to(1).matches(1)
