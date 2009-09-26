@@ -20,10 +20,10 @@ class IsA(Matcher):
         self._type = type_
         
     def matches(self, value, failure_output):
-        passed = isinstance(value, self._type)
-        if not passed:
+        if not isinstance(value, self._type):
             failure_output.append(self._describe(type(value)))
-        return passed
+            return False
+        return True
         
     def __str__(self):
         return self._describe(self._type)
@@ -64,10 +64,10 @@ class EqualTo(Matcher):
         self._value = value
         
     def matches(self, other, failure_output):
-        passed = self._value == other
-        if not passed:
+        if self._value != other:
             failure_output.append(str(other))
-        return passed
+            return False
+        return True
         
     def __str__(self):
         return str(self._value)
