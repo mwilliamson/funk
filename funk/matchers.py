@@ -6,7 +6,7 @@ class Matcher(object):
     pass
 
 class AnyValue(Matcher):
-    def matches(self, value, failure_output):
+    def matches(self, value, mismatch_output):
         return True
         
     def __str__(self):
@@ -19,9 +19,9 @@ class IsA(Matcher):
     def __init__(self, type_):
         self._type = type_
         
-    def matches(self, value, failure_output):
+    def matches(self, value, mismatch_output):
         if not isinstance(value, self._type):
-            failure_output.append(self._describe(type(value)))
+            mismatch_output.append("got %s" % self._describe(type(value)))
             return False
         return True
         
@@ -42,14 +42,14 @@ class HasAttr(Matcher):
     def __init__(self, attributes):
         self._attributes = attributes
         
-    def matches(self, value, failure_output):
+    def matches(self, value, mismatch_output):
         for key in self._attributes:
             if not hasattr(value, key):
-                failure_output.append("<value without attribute: %s>" % key)
+                mismatch_output.append("value was missing attribute: %s" % key)
                 return False
             attr_value = getattr(value, key)
             if attr_value != self._attributes[key]:
-                failure_output.append("<value with attribute: %s=%s>" % (key, attr_value))
+                mismatch_output.append("got <value with attribute: %s=%s>" % (key, attr_value))
                 return False
         return True
         
@@ -63,9 +63,9 @@ class EqualTo(Matcher):
     def __init__(self, value):
         self._value = value
         
-    def matches(self, other, failure_output):
+    def matches(self, other, mismatch_output):
         if self._value != other:
-            failure_output.append(str(other))
+            mismatch_output.append(str(other))
             return False
         return True
         

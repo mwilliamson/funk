@@ -11,6 +11,6 @@ def assert_raises_str(exception, message, function):
         raise AssertionError("%s was not raised" % exception.__name__)
 
 def assert_that(value, matcher):
-    failure_out = []
-    if not matcher.matches(value, failure_out):
-        raise AssertionError("Expected: %s\nbut got: %s" % (matcher, ''.join(failure_out)))
+    mismatch_output = []
+    if not matcher.matches(value, mismatch_output):
+        raise AssertionError("Expected: %s\nbut: %s" % (matcher, ''.join(mismatch_output)))

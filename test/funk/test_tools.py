@@ -47,7 +47,7 @@ def test_assert_that_raises_assertion_error_describing_expected_and_actual_resul
             passed = len(value) == 0
             
             if not passed:
-                failure_out.append("<value of length %s>" % len(value))
+                failure_out.append("got <value of length %s>" % len(value))
             
             return passed
             
@@ -56,5 +56,5 @@ def test_assert_that_raises_assertion_error_describing_expected_and_actual_resul
             
     assert_that([], HasZeroLength())
     assert_raises_str(AssertionError, 
-                      "Expected: <value of length zero>\nbut got: <value of length 8>",
+                      "Expected: <value of length zero>\nbut: got <value of length 8>",
                       lambda: assert_that("Anything", HasZeroLength()))
