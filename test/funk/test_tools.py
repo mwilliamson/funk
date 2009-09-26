@@ -44,12 +44,11 @@ def test_assert_that_raises_assertion_error_if_matcher_returns_false():
 def test_assert_that_raises_assertion_error_describing_expected_and_actual_results():
     class HasZeroLength(Matcher):
         def matches(self, value, failure_out):
-            passed = len(value) == 0
-            
-            if not passed:
+            if len(value):
                 failure_out.append("got <value of length %s>" % len(value))
+                return False
             
-            return passed
+            return True
             
         def __str__(self):
             return "<value of length zero>"
