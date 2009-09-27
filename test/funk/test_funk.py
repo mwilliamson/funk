@@ -3,6 +3,9 @@ from nose.tools import assert_equals
 
 import funk
 from funk import FunkyError
+from funk import expects
+from funk import provides
+from funk import has_attr
 from funk.tools import assert_raises_str
 from funk.matchers import Matcher
 
@@ -18,6 +21,21 @@ def test_can_set_attributes_on_mock_objects(context):
     
     assert_equals(name, mock.name)
     assert_equals(name, mock.name)
+
+@funk.with_context
+def test_can_set_attributes_that_override_methods_on_mock(context):
+    value = "I am not an animal! I am a human being!"
+    mock = context.mock()
+    assert callable(mock.expects)
+    assert callable(mock.provides)
+    assert callable(mock.has_attr)
+    mock.has_attr(expects=value, provides=value, has_attr=value)
+    assert not callable(mock.expects)
+    assert not callable(mock.provides)
+    assert not callable(mock.has_attr)
+    assert_equals(mock.expects, value)
+    assert_equals(mock.provides, value)
+    assert_equals(mock.has_attr, value)
 
 @funk.with_context
 def test_providing_a_method_without_specifying_arguments_allows_method_to_be_called_no_times(context):
@@ -143,6 +161,37 @@ def test_method_expectations_are_used_in_the_order_they_are_defined(context):
     assert mock.save() is first
     assert mock.save() is second
 
+@funk.with_context
+def test_can_expect_methods_that_override_methods_on_mock(context):
+    value_expects = "It was one of those all-night wicker places"
+    value_provides = "We shot a lot of people together"
+    value_has_attr = "It's a big building with patients, but that's not important right now."
+    mock = context.mock()
+    
+    mock.expects('provides').returns(value_provides)
+    mock.expects('has_attr').returns(value_has_attr)
+    mock.expects('expects').returns(value_expects)
+    
+    assert mock.expects() is value_expects
+    assert mock.provides() is value_provides
+    assert mock.has_attr() is value_has_attr
+    assert_raises(AssertionError, mock.expects)
+
+@funk.with_context
+def test_can_provide_methods_that_override_methods_on_mock(context):
+    value_expects = "It was one of those all-night wicker places"
+    value_provides = "We shot a lot of people together"
+    value_has_attr = "It's a big building with patients, but that's not important right now."
+    mock = context.mock()
+    
+    mock.provides('has_attr').returns(value_has_attr)
+    mock.provides('expects').returns(value_expects)
+    mock.provides('provides').returns(value_provides)
+    
+    assert mock.expects() is value_expects
+    assert mock.provides() is value_provides
+    assert mock.has_attr() is value_has_attr
+
 def test_function_raises_exception_if_expectations_are_not_satisfied():
     @funk.with_context
     def function(context):
@@ -192,7 +241,7 @@ def test_mocks_can_provide_calls(context):
     assert mock() is return_value
     assert mock() is return_value
     mock("positional", key="word") is return_value
-    
+
 @funk.with_context
 def test_mocks_can_provide_calls_with_args(context):
     return_value = "Hello!"
@@ -204,6 +253,42 @@ def test_mocks_can_provide_calls_with_args(context):
     
     assert_raises_str(AssertionError, "Unexpected invocation: save()", mock)
     assert_raises_str(AssertionError, "Unexpected invocation: save(positional, key=word)", lambda: mock("positional", key="word"))
+
+@funk.with_context
+def test_can_use_expects_function_when_expects_method_has_been_mocked(context):
+    value_expects = "In colour!"
+    value_save = "Coffee? Yes, I know."
+    mock = context.mock()
+    
+    mock.expects('expects').returns(value_expects)
+    expects(mock, 'save').returns(value_save)
+
+    assert mock.expects() is value_expects
+    assert mock.save() is value_save
+
+@funk.with_context
+def test_can_use_provides_function_when_provides_method_has_been_mocked(context):
+    value_provides = "In colour!"
+    value_save = "Coffee? Yes, I know."
+    mock = context.mock()
+    
+    mock.provides('provides').returns(value_provides)
+    provides(mock, 'save').returns(value_save)
+
+    assert mock.provides() is value_provides
+    assert mock.save() is value_save
+
+@funk.with_context
+def test_can_use_has_attr_function_when_has_attr_method_has_been_mocked(context):
+    value_has_attr = "In colour!"
+    value_save = "Coffee? Yes, I know."
+    mock = context.mock()
+    
+    mock.has_attr(has_attr=value_has_attr)
+    has_attr(mock, save=value_save)
+
+    assert mock.has_attr is value_has_attr
+    assert mock.save is value_save
 
 @funk.with_context
 def test_can_use_matchers_instead_of_values_for_positional_arguments(context):

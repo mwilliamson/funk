@@ -114,3 +114,12 @@ def with_context(test_function):
         context.verify()
     
     return test_function_with_context
+
+def expects(mock, *args, **kwargs):
+    return Mock.expects(mock, *args, **kwargs)
+
+def provides(mock, *args, **kwargs):
+    return Mock.provides(mock, *args, **kwargs)
+    
+def has_attr(mock, *args, **kwargs):
+    return Mock.has_attr(mock, *args, **kwargs)
