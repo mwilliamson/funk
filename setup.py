@@ -8,4 +8,5 @@ setup(
     author_email='mike@zwobble.org',
     url='http://gitorious.org/funk',
     packages=['funk'],
+    license='BSD License'
 )
