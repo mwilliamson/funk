@@ -1,0 +1,4 @@
+include setup.py LICENSE
+recursive-include funk *.py
+recursive-include test *.py
+recursive-include doc *
