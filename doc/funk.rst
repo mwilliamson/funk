@@ -58,9 +58,9 @@
         
     The first call to ``database.save`` returns the first return value since
     the arguments match, and it was declared first. However, subsequent calls
-    return the second return value since using ``database`` means that call
+    return the second return value since using ``database.expects`` means that call
     can be matched only once, where the call created by ``database.allows`` can
-    be called any number of times.
+    be matched any number of times.
 
     .. method:: hasattr(**kwargs)
     

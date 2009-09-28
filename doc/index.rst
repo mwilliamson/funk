@@ -13,6 +13,7 @@ Contents:
    
    guide
    funk
+   matchers
 
 Indices and tables
 ==================
