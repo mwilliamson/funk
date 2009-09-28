@@ -28,13 +28,13 @@ class Mock(object):
     def expects(self, method_name):
         return self._mocked_calls.add_method_call(method_name, IntegerCallCount(1))
     
-    def provides(self, method_name):
+    def allows(self, method_name):
         return self._mocked_calls.add_method_call(method_name, InfiniteCallCount())
     
     def expects_call(self):
         return self._mocked_calls.add_function_call(IntegerCallCount(1))
     
-    def provides_call(self):
+    def allows_call(self):
         return self._mocked_calls.add_function_call(InfiniteCallCount())
     
     def has_attr(self, **kwargs):
@@ -118,8 +118,8 @@ def with_context(test_function):
 def expects(mock, *args, **kwargs):
     return Mock.expects(mock, *args, **kwargs)
 
-def provides(mock, *args, **kwargs):
-    return Mock.provides(mock, *args, **kwargs)
+def allows(mock, *args, **kwargs):
+    return Mock.allows(mock, *args, **kwargs)
     
 def has_attr(mock, *args, **kwargs):
     return Mock.has_attr(mock, *args, **kwargs)
