@@ -4,6 +4,7 @@ from funk.matchers import any_value
 from funk.matchers import is_a
 from funk.matchers import has_attr
 from funk.matchers import equal_to
+from funk.matchers import not_
 
 def test_any_value_matches_everything():
     assert any_value().matches("foo", [])
@@ -105,3 +106,23 @@ def test_equal_to_writes_str_of_non_matching_values_to_mismatch_output():
     mismatch_output = []
     equal_to("got: bananas").matches(44, mismatch_output)
     assert_equals(["44"], mismatch_output)
+
+def test_not_negates_given_matcher():
+    assert not not_(equal_to(1)).matches(1, [])
+    assert not not_(equal_to("Blah")).matches("Blah", [])
+    assert not_(equal_to(1)).matches("Blah", [])
+    assert not_(equal_to("Blah")).matches(1, [])
+
+def test_not_to_str_prefixes_not_to_matcher_description():
+    assert_equals(str(not_(equal_to("Blah"))), "not Blah")
+
+def test_not_does_not_write_to_mismatch_output_if_it_matches():
+    mismatch_output = []
+    assert not_(equal_to(1)).matches("Blah", mismatch_output)
+    assert not_(equal_to("Blah")).matches(1, mismatch_output)
+    assert not mismatch_output
+
+def test_not_writes_matcher_as_mismatch_description():
+    mismatch_output = []
+    not_(equal_to("Blah")).matches("Blah", mismatch_output)
+    assert_equals(['got value matching: Blah'], mismatch_output)

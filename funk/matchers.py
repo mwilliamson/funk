@@ -1,6 +1,6 @@
 from funk.util import arguments_str
 
-__all__ = ['any_value', 'is_a', 'has_attr', 'equal_to']
+__all__ = ['any_value', 'is_a', 'has_attr', 'equal_to', 'not_']
 
 class Matcher(object):
     pass
@@ -74,3 +74,19 @@ class EqualTo(Matcher):
         
 def equal_to(value):
     return EqualTo(value)
+
+class Not(Matcher):
+    def __init__(self, matcher):
+        self._matcher = matcher
+
+    def matches(self, value, mismatch_output):
+        if self._matcher.matches(value, []):
+            mismatch_output.append('got value matching: %s' % self._matcher)
+            return False
+        return True
+
+    def __str__(self):
+        return "not %s" % self._matcher
+
+def not_(matcher):
+    return Not(matcher)
