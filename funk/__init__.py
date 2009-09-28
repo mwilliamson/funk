@@ -5,7 +5,7 @@ from funk.call import IntegerCallCount
 from funk.call import InfiniteCallCount
 from funk.util import function_call_str
 
-__all__ = ['with_context']
+__all__ = ['with_context', 'Context', 'expects', 'allows', 'has_attr']
 
 class Context(object):
     def __init__(self):
