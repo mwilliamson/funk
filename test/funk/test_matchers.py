@@ -5,6 +5,8 @@ from funk.matchers import is_a
 from funk.matchers import has_attr
 from funk.matchers import equal_to
 from funk.matchers import not_
+from funk.matchers import all_of
+from funk.matchers import any_of
 
 def test_any_value_matches_everything():
     assert any_value().matches("foo", [])
@@ -126,3 +128,113 @@ def test_not_writes_matcher_as_mismatch_description():
     mismatch_output = []
     not_(equal_to("Blah")).matches("Blah", mismatch_output)
     assert_equals(['got value matching: Blah'], mismatch_output)
+
+def test_all_of_passes_if_all_matchers_satisfied():
+    class Rectangle(object):
+        def __init__(self, width, height):
+            self.width = width
+            self.height = height
+    
+    class NotARectangle(object):
+        def __init__(self, width):
+            self.width = width
+    
+    matcher = all_of(is_a(Rectangle), has_attr(width=20))
+    assert matcher.matches(Rectangle(20, 40), [])
+    assert not matcher.matches(NotARectangle(20), [])
+    assert not matcher.matches(Rectangle(30, 40), [])
+    assert not matcher.matches("Rectangle", [])
+
+def test_all_of_str_is_conjunction_of_passed_matchers():
+    class Rectangle(object):
+        pass
+    is_a_rectangle = is_a(Rectangle)
+    is_20_wide = has_attr(width=20)
+    matcher = all_of(is_a_rectangle, is_20_wide)
+    assert_equals("(%s) and (%s)" % (is_a_rectangle, is_20_wide), str(matcher))
+
+def test_all_of_does_not_write_to_mismatch_output_if_it_matches():
+    class Rectangle(object):
+        def __init__(self, width, height):
+            self.width = width
+            self.height = height
+    mismatch_description = []
+    matcher = all_of(is_a(Rectangle), has_attr(width=20))
+    assert matcher.matches(Rectangle(20, 40), mismatch_description)
+    assert not mismatch_description
+
+def test_all_of_describes_first_failing_match_if_match_fails():
+    class Rectangle(object):
+        pass
+    
+    expected_output = []
+    is_a(Rectangle).matches("Rectangle", expected_output)
+    
+    mismatch_output = []
+    matcher = all_of(any_value(), is_a(Rectangle), has_attr(width=20))
+    matcher.matches("Rectangle", mismatch_output)
+    assert_equals(expected_output, mismatch_output)
+
+def test_any_of_passes_if_any_matchers_satisfied():
+    class Rectangle(object):
+        def __init__(self, width, height):
+            self.width = width
+            self.height = height
+    
+    class NotARectangle(object):
+        def __init__(self, width):
+            self.width = width
+    
+    matcher = any_of(is_a(Rectangle), has_attr(width=20))
+    assert matcher.matches(Rectangle(20, 40), [])
+    assert matcher.matches(NotARectangle(20), [])
+    assert matcher.matches(Rectangle(30, 40), [])
+    assert not matcher.matches("Rectangle", [])
+
+def test_any_of_str_is_disjunction_of_passed_matchers():
+    class Rectangle(object):
+        pass
+    is_a_rectangle = is_a(Rectangle)
+    is_20_wide = has_attr(width=20)
+    matcher = any_of(is_a_rectangle, is_20_wide)
+    assert_equals("(%s) or (%s)" % (is_a_rectangle, is_20_wide), str(matcher))
+    
+def test_any_of_does_not_write_to_mismatch_output_if_it_matches():
+    class Rectangle(object):
+        def __init__(self, width, height):
+            self.width = width
+            self.height = height
+    
+    class NotARectangle(object):
+        def __init__(self, width):
+            self.width = width
+            
+    mismatch_description = []
+    matcher = any_of(is_a(Rectangle), has_attr(width=20))
+    assert matcher.matches(Rectangle(20, 40), mismatch_description)
+    assert matcher.matches(NotARectangle(20), mismatch_description)
+    assert matcher.matches(Rectangle(30, 40), mismatch_description)
+    assert not mismatch_description
+
+def test_any_of_describes_all_matchers_when_match_fails():
+    class FalseMatcher(object):
+        def __init__(self, description):
+            self.description = description
+            
+        def matches(self, value, output):
+            return False
+            
+        def __str__(self):
+            return self.description
+    
+    expected_output = []
+    is_a_rectangle = FalseMatcher("is a rectangle")
+    is_a_rectangle.matches("Rectangle", expected_output)
+    is_20_wide = FalseMatcher("is 20 wide")
+    is_20_wide.matches("Rectangle", expected_output)
+    expected_output = 'did not match any of: (is a rectangle), (is 20 wide)'
+    
+    mismatch_output = []
+    matcher = any_of(is_a_rectangle, is_20_wide)
+    matcher.matches("Rectangle", mismatch_output)
+    assert_equals([expected_output], mismatch_output)

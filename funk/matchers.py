@@ -1,6 +1,6 @@
 from funk.util import arguments_str
 
-__all__ = ['any_value', 'is_a', 'has_attr', 'equal_to', 'not_']
+__all__ = ['any_value', 'is_a', 'has_attr', 'equal_to', 'not_', 'all_of', 'any_of']
 
 class Matcher(object):
     pass
@@ -90,3 +90,38 @@ class Not(Matcher):
 
 def not_(matcher):
     return Not(matcher)
+
+class AllOf(Matcher):
+    def __init__(self, matchers):
+        self._matchers = matchers
+        
+    def matches(self, value, mismatch_output):
+        for matcher in self._matchers:
+            if not matcher.matches(value, mismatch_output):
+                return False
+        return True
+        
+    def __str__(self):
+        return _join_matchers(' and ', self._matchers)
+
+def all_of(*matchers):
+    return AllOf(matchers)
+    
+class AnyOf(Matcher):
+    def __init__(self, matchers):
+        self._matchers = matchers
+        
+    def matches(self, value, mismatch_output):
+        if not any([matcher.matches(value, []) for matcher in self._matchers]):
+            mismatch_output.append('did not match any of: %s' % _join_matchers(', ', self._matchers))
+            return False
+        return True
+        
+    def __str__(self):
+        return _join_matchers(' or ', self._matchers)
+    
+def any_of(*matchers):
+    return AnyOf(matchers)
+
+def _join_matchers(glue, matchers):
+    return glue.join(["(%s)" % matcher for matcher in matchers])
