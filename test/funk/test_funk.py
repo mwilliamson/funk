@@ -98,7 +98,7 @@ def test_same_method_can_return_different_values_for_different_arguments_using_a
 @funk.with_context
 def test_name_of_mock_is_used_in_exceptions(context):
     unnamed = context.mock()
-    named = context.mock('database')
+    named = context.mock(name='database')
     unnamed.allows('save').with_args("positional")
     named.allows('save').with_args("positional")
     
@@ -205,7 +205,7 @@ def test_function_raises_exception_if_expectations_are_not_satisfied():
 @funk.with_context
 def test_mocks_can_expect_calls(context):
     return_value = "Hello!"
-    mock = context.mock('save')
+    mock = context.mock(name='save')
     assert_raises_str(AssertionError, "Unexpected invocation: save()", mock)
     mock.expects_call().returns(return_value)
     assert mock() is return_value
@@ -215,7 +215,7 @@ def test_mocks_can_expect_calls(context):
 @funk.with_context
 def test_mocks_can_expect_calls_with_args(context):
     return_value = "Hello!"
-    mock = context.mock('save')
+    mock = context.mock(name='save')
     assert_raises_str(AssertionError, "Unexpected invocation: save()", mock)
     mock.expects_call().with_args("positional").returns(return_value)
     assert_raises_str(AssertionError, "Unexpected invocation: save()", mock)
@@ -235,7 +235,7 @@ def test_function_raises_exception_if_expectations_of_calls_on_mock_are_not_sati
 @funk.with_context
 def test_mocks_can_allow_calls(context):
     return_value = "Hello!"
-    mock = context.mock('save')
+    mock = context.mock(name='save')
     assert_raises_str(AssertionError, "Unexpected invocation: save()", mock)
     mock.allows_call().returns(return_value)
     assert mock() is return_value
@@ -245,7 +245,7 @@ def test_mocks_can_allow_calls(context):
 @funk.with_context
 def test_mocks_can_allow_calls_with_args(context):
     return_value = "Hello!"
-    mock = context.mock('save')
+    mock = context.mock(name='save')
     assert_raises_str(AssertionError, "Unexpected invocation: save()", mock)
     mock.allows_call().with_args("positional").returns(return_value)
     
@@ -289,6 +289,33 @@ def test_can_use_has_attr_function_when_has_attr_method_has_been_mocked(context)
 
     assert mock.has_attr is value_has_attr
     assert mock.save is value_save
+
+@funk.with_context
+def test_if_mock_is_based_on_a_class_then_can_only_expect_methods_defined_on_that_class(context):
+    class Database(object):
+        def save(self):
+            pass
+            
+        status = False
+    
+    database = context.mock(Database)
+    database.allows('save')
+    assert_raises_str(AssertionError, "Method 'delete' is not defined on type object 'Database'", lambda: database.allows('delete'))
+    assert_raises_str(AssertionError, "Attribute 'status' is not callable on type object 'Database'", lambda: database.allows('status'))
+
+@funk.with_context
+def test_if_mock_is_based_on_a_class_then_can_also_expect_methods_defined_on_superclass(context):
+    class Database(object):
+        def save(self):
+            pass
+    
+    class DeletingDatabase(Database):
+        def delete(self):
+            pass
+    
+    database = context.mock(DeletingDatabase)
+    database.allows('save')
+    database.allows('delete')
 
 @funk.with_context
 def test_can_use_matchers_instead_of_values_for_positional_arguments(context):

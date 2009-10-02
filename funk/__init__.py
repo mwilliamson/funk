@@ -11,8 +11,8 @@ class Context(object):
     def __init__(self):
         self._mocks = []
     
-    def mock(self, name='unnamed'):
-        mock = Mock(name)
+    def mock(self, base=None, name='unnamed'):
+        mock = Mock(base, name)
         self._mocks.append(mock)
         return mock
         
@@ -21,9 +21,9 @@ class Context(object):
             mock._verify()
 
 class Mock(object):
-    def __init__(self, name):
+    def __init__(self, base, name):
         self._name = name
-        self._mocked_calls = MockedCalls(name)
+        self._mocked_calls = MockedCalls(base, name)
     
     def expects(self, method_name):
         return self._mocked_calls.add_method_call(method_name, IntegerCallCount(1))
@@ -55,12 +55,18 @@ class Mock(object):
         self._mocked_calls.verify()
 
 class MockedCalls(object):
-    def __init__(self, mock_name):
+    def __init__(self, base, mock_name):
+        self._base = base
         self._method_calls = []
         self._function_calls = []
         self._mock_name = mock_name
     
     def add_method_call(self, method_name, call_count):
+        if self._base is not None:
+            if not hasattr(self._base, method_name):
+                raise AssertionError("Method '%s' is not defined on type object '%s'" % (method_name, self._base.__name__))
+            if not callable(getattr(self._base, method_name)):
+                raise AssertionError("Attribute '%s' is not callable on type object '%s'" % (method_name, self._base.__name__))
         call = Call(method_name, call_count)
         self._method_calls.append(call)
         return call
