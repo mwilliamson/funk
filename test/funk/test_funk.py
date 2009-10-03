@@ -291,6 +291,45 @@ def test_can_use_has_attr_function_when_has_attr_method_has_been_mocked(context)
     assert mock.save is value_save
 
 @funk.with_context
+def test_can_use_expects_to_expect_call_with_the_same_syntax_that_it_will_be_called_with(context):
+    to_save = "Let's go!"
+    return_value = "Yippee!"
+    database = context.mock()
+    expects(database).save(to_save).returns(return_value)
+    assert_raises(AssertionError, lambda: database.save())
+    assert database.save(to_save) is return_value
+    assert_raises(AssertionError, lambda: database.save(to_save))
+
+@funk.with_context
+def test_can_use_allows_to_allow_call_with_the_same_syntax_that_it_will_be_called_with(context):
+    to_save = "Let's go!"
+    return_value = "Yippee!"
+    database = context.mock()
+    allows(database).save(to_save).returns(return_value)
+    assert_raises(AssertionError, lambda: database.save())
+    assert database.save(to_save) is return_value
+    assert database.save(to_save) is return_value
+
+@funk.with_context
+def test_can_expect_call_without_specifying_arguments_with_the_same_syntax_that_it_will_be_called_with(context):
+    to_save = "Let's go!"
+    return_value = "Yippee!"
+    database = context.mock()
+    expects(database).save.returns(return_value)
+    assert database.save(to_save) is return_value
+    assert_raises(AssertionError, lambda: database.save(to_save))
+    
+@funk.with_context
+def test_can_allow_call_without_specifying_arguments_with_the_same_syntax_that_it_will_be_called_with(context):
+    to_save = "Let's go!"
+    return_value = "Yippee!"
+    database = context.mock()
+    allows(database).save.returns(return_value)
+    assert database.save(to_save) is return_value
+    assert database.save(to_save) is return_value
+    assert database.save() is return_value
+
+@funk.with_context
 def test_if_mock_is_based_on_a_class_then_can_only_expect_methods_defined_on_that_class(context):
     class Database(object):
         def save(self):

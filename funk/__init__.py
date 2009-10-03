@@ -121,11 +121,33 @@ def with_context(test_function):
     
     return test_function_with_context
 
-def expects(mock, *args, **kwargs):
-    return Mock.expects(mock, *args, **kwargs)
+class MethodArgumentsSetter(object):
+    def __init__(self, call):
+        self._call = call
+    
+    def __call__(self, *args, **kwargs):
+        return self._call.with_args(*args, **kwargs)
 
-def allows(mock, *args, **kwargs):
-    return Mock.allows(mock, *args, **kwargs)
+    def __getattr__(self, name):
+        return getattr(self._call, name)
+
+class ExpectationCreator(object):
+    def __init__(self, expectation_setter):
+        self._expectation_setter = expectation_setter
+    
+    def __getattribute__(self, name):
+        my = lambda name: object.__getattribute__(self, name)
+        return MethodArgumentsSetter(my('_expectation_setter')(name))
+
+def expects(mock, method_name=None):
+    if method_name is None:
+        return ExpectationCreator(lambda method_name: expects(mock, method_name))
+    return Mock.expects(mock, method_name)
+
+def allows(mock, method_name=None):
+    if method_name is None:
+        return ExpectationCreator(lambda method_name: allows(mock, method_name))
+    return Mock.allows(mock, method_name)
     
 def has_attr(mock, *args, **kwargs):
     return Mock.has_attr(mock, *args, **kwargs)
