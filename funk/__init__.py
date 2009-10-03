@@ -5,7 +5,7 @@ from funk.call import IntegerCallCount
 from funk.call import InfiniteCallCount
 from funk.util import function_call_str
 
-__all__ = ['with_context', 'Context', 'expects', 'allows', 'has_attr']
+__all__ = ['with_context', 'Context', 'expects', 'allows', 'set_attr']
 
 class Context(object):
     def __init__(self):
@@ -37,7 +37,7 @@ class Mock(object):
     def allows_call(self):
         return self._mocked_calls.add_function_call(InfiniteCallCount())
     
-    def has_attr(self, **kwargs):
+    def set_attr(self, **kwargs):
         for kwarg in kwargs:
             setattr(self, kwarg, kwargs[kwarg])
             
@@ -149,5 +149,5 @@ def allows(mock, method_name=None):
         return ExpectationCreator(lambda method_name: allows(mock, method_name))
     return Mock.allows(mock, method_name)
     
-def has_attr(mock, *args, **kwargs):
-    return Mock.has_attr(mock, *args, **kwargs)
+def set_attr(mock, *args, **kwargs):
+    return Mock.set_attr(mock, *args, **kwargs)
