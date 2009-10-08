@@ -1,5 +1,5 @@
 def arguments_str(args, kwargs):
-    args_str = list(args[:])
+    args_str = map(str, args)
     args_str += ['%s=%s' % (key, kwargs[key]) for key in kwargs]
     return ', '.join(args_str)
 
