@@ -202,6 +202,16 @@ def test_function_raises_exception_if_expectations_are_not_satisfied():
                       "Not all expectations were satisfied. Expected call: unnamed.save",
                       function)
 
+def test_function_arguments_described_when_not_all_expectations_are_satisfied():
+    @funk.with_context
+    def function(context):
+        mock = context.mock()
+        mock.expects("save").with_args("positional", key="word")
+        
+    assert_raises_str(AssertionError,
+                      "Not all expectations were satisfied. Expected call: unnamed.save(positional, key=word)",
+                      function)
+
 @funk.with_context
 def test_mocks_can_expect_calls(context):
     return_value = "Hello!"
@@ -230,6 +240,16 @@ def test_function_raises_exception_if_expectations_of_calls_on_mock_are_not_sati
         
     assert_raises_str(AssertionError,
                       "Not all expectations were satisfied. Expected call: unnamed",
+                      function)
+
+def test_function_arguments_described_when_not_all_expectations_are_satisfied():
+    @funk.with_context
+    def function(context):
+        mock = context.mock()
+        mock.expects_call().with_args("positional", key="word")
+        
+    assert_raises_str(AssertionError,
+                      "Not all expectations were satisfied. Expected call: unnamed(positional, key=word)",
                       function)
     
 @funk.with_context

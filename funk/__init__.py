@@ -90,7 +90,7 @@ class MockedCalls(object):
         for call in self._method_calls:
             self._verify_call(call, "%s.%s" % (self._mock_name, call))
         for call in self._function_calls:
-            self._verify_call(call, self._mock_name)
+            self._verify_call(call, call)
                 
     def _verify_call(self, call, name):
         if not call.is_satisfied():
