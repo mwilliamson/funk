@@ -7,40 +7,11 @@ from funk.util import function_call_str
 
 __all__ = ['with_context', 'Context', 'expects', 'allows', 'set_attr', 'expects_call', 'allows_call']
 
-class Context(object):
-    def __init__(self):
-        self._mocks = []
-    
-    def mock(self, base=None, name='unnamed'):
-        mock = Mock(base, name)
-        self._mocks.append(mock)
-        return mock
-        
-    def verify(self):
-        for mock in self._mocks:
-            mock._verify()
-
 class Mock(object):
     def __init__(self, base, name):
         self._name = name
         self._mocked_calls = MockedCalls(base, name)
-    
-    def expects(self, method_name):
-        return self._mocked_calls.add_method_call(method_name, IntegerCallCount(1))
-    
-    def allows(self, method_name):
-        return self._mocked_calls.add_method_call(method_name, InfiniteCallCount())
-    
-    def expects_call(self):
-        return self._mocked_calls.add_function_call(IntegerCallCount(1))
-    
-    def allows_call(self):
-        return self._mocked_calls.add_function_call(InfiniteCallCount())
-    
-    def set_attr(self, **kwargs):
-        for kwarg in kwargs:
-            setattr(self, kwarg, kwargs[kwarg])
-            
+        
     def __getattribute__(self, name):
         my = lambda name: object.__getattribute__(self, name)
         mocked_calls = my('_mocked_calls')
@@ -109,12 +80,12 @@ class MockedCallsForFunction(object):
         call_str = function_call_str(self._name, args, kwargs)
         raise AssertionError("Unexpected invocation: %s" % call_str)
 
-def with_context(test_function):
+def with_context(test_function, mock_factory=None):
     @wraps(test_function)
     def test_function_with_context(*args, **kwargs):
         if 'context' in kwargs:
             raise FunkyError("context has already been set")
-        context = Context()
+        context = Context(mock_factory)
         kwargs['context'] = context
         test_function(*args, **kwargs)
         context.verify()
@@ -142,18 +113,35 @@ class ExpectationCreator(object):
 def expects(mock, method_name=None):
     if method_name is None:
         return ExpectationCreator(lambda method_name: expects(mock, method_name))
-    return Mock.expects(mock, method_name)
+    return mock._mocked_calls.add_method_call(method_name, IntegerCallCount(1))
 
 def allows(mock, method_name=None):
     if method_name is None:
         return ExpectationCreator(lambda method_name: allows(mock, method_name))
-    return Mock.allows(mock, method_name)
+    return mock._mocked_calls.add_method_call(method_name, InfiniteCallCount())
     
 def set_attr(mock, *args, **kwargs):
-    return Mock.set_attr(mock, *args, **kwargs)
+    for kwarg in kwargs:
+        setattr(mock, kwarg, kwargs[kwarg])
 
 def expects_call(mock):
-    return MethodArgumentsSetter(Mock.expects_call(mock))
+    return MethodArgumentsSetter(mock._mocked_calls.add_function_call(IntegerCallCount(1)))
 
 def allows_call(mock):
-    return MethodArgumentsSetter(Mock.allows_call(mock))
+    return MethodArgumentsSetter(mock._mocked_calls.add_function_call(InfiniteCallCount()))
+
+class Context(object):
+    def __init__(self, mock_factory=None):
+        if mock_factory is None:
+            mock_factory = Mock
+        self._mocks = []
+        self._mock_factory = mock_factory
+    
+    def mock(self, base=None, name='unnamed'):
+        mock = self._mock_factory(base, name)
+        self._mocks.append(mock)
+        return mock
+        
+    def verify(self):
+        for mock in self._mocks:
+            mock._verify()
