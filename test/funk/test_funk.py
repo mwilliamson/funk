@@ -6,6 +6,8 @@ from funk import FunkyError
 from funk import expects
 from funk import allows
 from funk import set_attr
+from funk import expects_call
+from funk import allows_call
 from funk.tools import assert_raises_str
 from funk.matchers import Matcher
 
@@ -348,6 +350,26 @@ def test_can_allow_call_without_specifying_arguments_with_the_same_syntax_that_i
     assert database.save(to_save) is return_value
     assert database.save(to_save) is return_value
     assert database.save() is return_value
+
+@funk.with_context
+def test_can_expect_calls_using_function(context):
+    to_print = "Hello, hello, hello, what's going on here then?"
+    to_return = "There are four lights!"
+    printer = context.mock()
+    
+    expects_call(printer)(to_print).returns(to_return)
+    
+    assert printer(to_print) is to_return
+    
+@funk.with_context
+def test_can_allow_calls_using_function(context):
+    to_print = "Hello, hello, hello, what's going on here then?"
+    to_return = "There are four lights!"
+    printer = context.mock()
+    
+    allows_call(printer)(to_print).returns(to_return)
+    
+    assert printer(to_print) is to_return
 
 @funk.with_context
 def test_if_mock_is_based_on_a_class_then_can_only_expect_methods_defined_on_that_class(context):
