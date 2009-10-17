@@ -1,5 +1,5 @@
 :mod:`funk.matchers`
-============
+====================
 
 .. module:: funk.matchers
 
@@ -11,7 +11,7 @@
     
     .. method:: matches(value, mismatch_output)
     
-        Returns True if this matcher matches *value*, False otherwise.
+        Returns :const:`True` if this matcher matches *value*, :const:`False` otherwise.
         
         If the matcher matches *value*, then *mismatch_output* should not be used.
         Otherwise, the reason for the mismatch should be written to *mismatch_output*
@@ -55,6 +55,6 @@
 
     Matches a value if all of the passed matchers match the value.
 
-.. function:: any_of
+.. function:: any_of(*matchers)
 
     Matches a value if any of the passed matchers match the value.

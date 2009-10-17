@@ -120,7 +120,7 @@ def allows(mock, method_name=None):
         return ExpectationCreator(lambda method_name: allows(mock, method_name))
     return mock._mocked_calls.add_method_call(method_name, InfiniteCallCount())
     
-def set_attr(mock, *args, **kwargs):
+def set_attr(mock, **kwargs):
     for kwarg in kwargs:
         setattr(mock, kwarg, kwargs[kwarg])
 
