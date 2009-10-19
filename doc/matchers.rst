@@ -17,7 +17,7 @@
         Otherwise, the reason for the mismatch should be written to *mismatch_output*
         using ``mismatch_output.append``.
     
-    An example matcher is IsAnInt (this is generalised in :func:`~funk.matchers.is_a`)::
+    An example matcher is :class:`IsAnInt` (this is generalised in :func:`~funk.matchers.is_a`)::
     
         class IsAnInt(Matcher):
             def matches(self, value, mismatch_output):
@@ -39,8 +39,8 @@
 
 .. function:: has_attr(**attributes)
 
-    Matches *value* if, for every pair *(key, value)* in *attributes*,
-    ``value.key == value``.
+    Matches *actual* if, for every pair *(key, value)* in *attributes*,
+    ``actual.key == value``.
 
 .. function:: equal_to(value)
 

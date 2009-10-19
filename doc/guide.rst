@@ -50,11 +50,11 @@ Alternatively (and equivalently)::
 
     expects(tag_repository).fetch_all.with_args(sorted=False)
     
-Finally, we set the return value using :func:`funk.Call.returns`::
+Finally, we set the return value using :func:`~funk.call.Call.returns`::
 
     expects(tag_repository).fetch_all(sorted=False).returns([Tag('python'), Tag('debian')])
     
-Note that we could have called :func:`funk.Call.returns` without setting up
+Note that we could have called :func:`~funk.call.Call.returns` without setting up
 the arguments. This is useful when you just don't care what the arguments are,
 but the return values are important. For instance::
 
@@ -71,7 +71,7 @@ the wrong method -- for instance, it might try to call the non-existant method
 
     AttributeError: 'Mock' object has no attribute 'fetch_all_tags'
     
-Alternatively, we might call :func:`fetch_all` with a single argument, `'spam'`,
+Alternatively, we might call :func:`fetch_all` with a single argument, ``'spam'``,
 instead of the correct keyword argument::
 
     AssertionError: Unexpected invocation: tag_repository.fetch_all(spam)
@@ -80,15 +80,15 @@ If we call the method with the correct arguments twice::
 
     AssertionError: Unexpected invocation: tag_repository.fetch_all(sorted=False)
     
-If we don't call the method at all, but the assertion still passes, the test
-will fail since the mock did have all of its expected methods called::
+If we don't call the method at all, the test will fail since the mock did not
+have all of its expected methods called::
 
     AssertionError: Not all expectations were satisfied. Expected call: tag_repository.fetch_all(sorted=False)
 
 But what if we don't want the test to fail if the method is not called? We can use
 :func:`~funk.allows` instead of :func:`~funk.expects`. They both
 behave in the same manner, except that :func:`~funk.expects` will expect exactly one
-matching call, whereas :func:`~allows` will allow any number of calls, including
+matching call, whereas :func:`~funk.allows` will allow any number of calls, including
 none.
 
 Different expectations on the same method
