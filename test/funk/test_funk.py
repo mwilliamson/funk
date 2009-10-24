@@ -300,10 +300,9 @@ def test_assertion_fails_if_calls_do_not_follow_sequence():
         file.close()
         file.write("Private investigations")
         
-    assert_raises(AssertionError, test_function)
-    #~ assert_raises_str(AssertionError,
-                      #~ "Invocation out of order. Expected file.write(Private investigations), but got file.close().",
-                      #~ test_function)
+    assert_raises_str(AssertionError,
+                      "Invocation out of order. Expected file.write(Private investigations), but got file.close().",
+                      test_function)
 
 @funk.with_context
 def test_if_mock_is_based_on_a_class_then_can_only_expect_methods_defined_on_that_class(context):

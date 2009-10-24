@@ -10,7 +10,6 @@ __all__ = ['with_context', 'Context', 'expects', 'allows', 'set_attr', 'expects_
 
 class Mock(object):
     def __init__(self, base, name):
-        self._name = name
         self._mocked_calls = MockedCalls(base, name)
         
     def __getattribute__(self, name):
@@ -29,7 +28,7 @@ class Mock(object):
 class MockedCalls(object):
     def __init__(self, base, mock_name):
         self._base = base
-        self._method_calls = []
+        self._method_calls = {}
         self._function_calls = []
         self._mock_name = mock_name
     
@@ -39,8 +38,12 @@ class MockedCalls(object):
                 raise AssertionError("Method '%s' is not defined on type object '%s'" % (method_name, self._base.__name__))
             if not callable(getattr(self._base, method_name)):
                 raise AssertionError("Attribute '%s' is not callable on type object '%s'" % (method_name, self._base.__name__))
-        call = Call(method_name, call_count)
-        self._method_calls.append(call)
+        call = Call("%s.%s" % (self._mock_name, method_name), call_count)
+        
+        if method_name not in self._method_calls:
+            self._method_calls[method_name] = []
+        
+        self._method_calls[method_name].append(call)
         return call
     
     def add_function_call(self, call_count):
@@ -49,24 +52,24 @@ class MockedCalls(object):
         return call
     
     def for_method(self, name):
-        method_calls = filter(lambda call: call.has_name(name), self._method_calls)
-        return MockedCallsForFunction("%s.%s" %(self._mock_name, name), method_calls)
+        return MockedCallsForFunction("%s.%s" % (self._mock_name, name), self._method_calls[name])
     
     def for_self(self):
         return MockedCallsForFunction(self._mock_name, self._function_calls)
     
     def __contains__(self, name):
-        return any([call.has_name(name) for call in self._method_calls])
+        return name in self._method_calls
         
     def verify(self):
-        for call in self._method_calls:
-            self._verify_call(call, "%s.%s" % (self._mock_name, call))
+        for method_name in self._method_calls:
+            for call in self._method_calls[method_name]:
+                self._verify_call(call)
         for call in self._function_calls:
-            self._verify_call(call, call)
+            self._verify_call(call)
                 
-    def _verify_call(self, call, name):
+    def _verify_call(self, call):
         if not call.is_satisfied():
-            raise AssertionError("Not all expectations were satisfied. Expected call: %s" % name)
+            raise AssertionError("Not all expectations were satisfied. Expected call: %s" % call)
 
 class MockedCallsForFunction(object):
     def __init__(self, name, calls):
