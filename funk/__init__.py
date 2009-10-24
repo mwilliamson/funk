@@ -3,6 +3,7 @@ from funk.error import FunkyError
 from funk.call import Call
 from funk.call import IntegerCallCount
 from funk.call import InfiniteCallCount
+from funk.sequence import Sequence
 from funk.util import function_call_str
 
 __all__ = ['with_context', 'Context', 'expects', 'allows', 'set_attr', 'expects_call', 'allows_call']
@@ -145,3 +146,6 @@ class Context(object):
     def verify(self):
         for mock in self._mocks:
             mock._verify()
+            
+    def sequence(self):
+        return Sequence()

@@ -34,6 +34,7 @@ class Call(object):
         self._name = name
         self._call_count = call_count
         self._action = lambda: None
+        self._sequences = []
     
     def has_name(self, name):
         return self._name == name
@@ -62,8 +63,9 @@ class Call(object):
         if not self.accepts(args, kwargs):
             raise FunkyError("Called with wrong arguments")
         self._call_count.decrement()
-        action = self._action
-        return action()
+        for sequence in self._sequences:
+            sequence.add_actual_call(self)
+        return self._action()
     
     def with_args(self, *args, **kwargs):
         self._allowed_args = tuple(map(self._to_matcher, args))
@@ -78,6 +80,11 @@ class Call(object):
         def action():
             raise error
         self._action = action
+        return self
+
+    def in_sequence(self, sequence):
+        self._sequences.append(sequence)
+        sequence.add_expected_call(self)
         return self
 
     def is_satisfied(self):

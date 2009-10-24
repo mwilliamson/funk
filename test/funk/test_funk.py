@@ -289,6 +289,22 @@ def test_can_allow_calls_with_the_same_syntax_that_it_will_be_called_with(contex
     
     assert printer(to_print) is to_return
 
+def test_assertion_fails_if_calls_do_not_follow_sequence():
+    @funk.with_context
+    def test_function(context):
+        file = context.mock(name="file")
+        ordering = context.sequence()
+        expects(file).write("Private investigations").in_sequence(ordering)
+        expects(file).close().in_sequence(ordering)
+        
+        file.close()
+        file.write("Private investigations")
+        
+    assert_raises(AssertionError, test_function)
+    #~ assert_raises_str(AssertionError,
+                      #~ "Invocation out of order. Expected file.write(Private investigations), but got file.close().",
+                      #~ test_function)
+
 @funk.with_context
 def test_if_mock_is_based_on_a_class_then_can_only_expect_methods_defined_on_that_class(context):
     class Database(object):
@@ -356,3 +372,4 @@ def test_calling_function_wrapped_in_with_context_raises_exception_if_context_al
         pass
         
     assert_raises(FunkyError, lambda: some_function(context=None))
+

@@ -123,3 +123,34 @@ def test_can_use_matchers_instead_of_values_for_keyword_arguments_when_using_wit
     assert not call.accepts(["positional"], {'key': 'word'})
     assert not call.accepts([], {'key': 'word', 'value': 'Blah'})
     assert call(value="Blah") is return_value
+
+def test_calling_in_sequence_adds_call_to_sequence():
+    class StubbedSequence(object):
+        def __init__(self):
+            self.calls = []
+        
+        def add_expected_call(self, call):
+            self.calls.append(call)
+        
+    sequence = StubbedSequence()
+    call = Call('save').in_sequence(sequence)
+    assert_equals(sequence.calls, [call])
+
+def test_calling_call_registers_call_with_sequences():
+    class StubbedSequence(object):
+        def __init__(self):
+            self.expected_calls = []
+            self.actual_calls = []
+        
+        def add_expected_call(self, call):
+            self.expected_calls.append(call)
+            
+        def add_actual_call(self, call):
+            self.actual_calls.append(call)
+            
+    first_sequence = StubbedSequence()
+    second_sequence = StubbedSequence()
+    call = Call('save').in_sequence(first_sequence)
+    
+    call()
+    assert_equals(first_sequence.actual_calls, [call])
