@@ -8,4 +8,5 @@ class Sequence(object):
     def add_actual_call(self, call):
         if call is not self._expected_calls[0]:
             raise AssertionError("Invocation out of order. Expected %s, but got %s." % (self._expected_calls[0], call))
+        self._expected_calls.pop(0)
 

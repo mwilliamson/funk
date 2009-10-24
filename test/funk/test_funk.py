@@ -157,7 +157,6 @@ def test_function_raises_exception_if_expectations_are_not_satisfied():
     assert_raises_str(AssertionError,
                       "Not all expectations were satisfied. Expected call: unnamed.save",
                       function)
-
 def test_method_arguments_described_when_not_all_expectations_are_satisfied():
     @funk.with_context
     def function(context):
@@ -288,6 +287,28 @@ def test_can_allow_calls_with_the_same_syntax_that_it_will_be_called_with(contex
     allows_call(printer)(to_print).returns(to_return)
     
     assert printer(to_print) is to_return
+
+@funk.with_context
+def test_sequences_do_not_raise_assertions_when_called_in_correct_order(context):
+    log = context.mock()
+    
+    first_ordering = context.sequence()
+    second_ordering = context.sequence()
+    
+    expects(log).write("You and your friend").in_sequence(first_ordering)
+    expects(log).write("Love Over Gold").in_sequence(second_ordering)
+    
+    expects(log).close().in_sequence(first_ordering).in_sequence(second_ordering)
+    
+    allows(log).flush()
+    
+    log.flush()
+    log.write("Love Over Gold")
+    log.flush()
+    log.write("You and your friend")
+    log.flush()
+    
+    log.close()
 
 def test_assertion_fails_if_calls_do_not_follow_sequence():
     @funk.with_context
