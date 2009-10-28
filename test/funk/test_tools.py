@@ -29,6 +29,13 @@ def test_assert_raises_str_fails_if_messages_do_not_match():
         raise TypeError("Oh dear.")
     assert_raises(AssertionError, lambda: assert_raises_str(TypeError, "Oh noes!", func))
 
+def test_assert_raises_str_can_take_arguments_for_function_under_test():
+    def func(name, number):
+        if name == "Sir Galahad" and number == 42:
+            raise RuntimeError("Look out!")
+            
+    assert_raises(RuntimeError, lambda: assert_raises_str(TypeError, "Oh noes!", func, "Sir Galahad", number=42))
+
 def test_assert_that_passes_if_matcher_returns_true():
     class TrueMatcher(Matcher):
         def matches(self, value, failure_out):

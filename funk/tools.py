@@ -1,9 +1,9 @@
 from nose.tools import assert_equals
 
-def assert_raises_str(exception, message, function):
+def assert_raises_str(exception, message, function, *args, **kwargs):
     passed = True
     try:
-        function()
+        function(*args, **kwargs)
         passed = False
     except exception, e:
         assert_equals(message, str(e))
