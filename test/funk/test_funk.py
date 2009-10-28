@@ -326,6 +326,39 @@ def test_assertion_fails_if_calls_do_not_follow_sequence():
                       test_function)
 
 @funk.with_context
+def test_using_allows_in_a_sequence_allows_it_to_be_called_no_times(context):
+    file = context.mock()
+    ordering = context.sequence()
+    allows(file).write.in_sequence(ordering)
+    expects(file).close().in_sequence(ordering)
+    
+    file.close()
+
+@funk.with_context
+def test_using_allows_in_a_sequence_allows_it_to_be_called_many_times(context):
+    file = context.mock()
+    ordering = context.sequence()
+    allows(file).write.in_sequence(ordering)
+    expects(file).close().in_sequence(ordering)
+    
+    file.write("Foo")
+    file.write("Bar")
+    file.write("Baz")
+    file.close()
+    
+@funk.with_context
+def test_calling_allowed_call_in_wrong_place_raises_assertion_error(context):
+    file = context.mock()
+    ordering = context.sequence()
+    allows(file).write.in_sequence(ordering)
+    expects(file).close().in_sequence(ordering)
+    
+    file.close()
+    assert_raises_str(AssertionError,
+                      'Invocation out of order. Expected no more calls in sequence, but got unnamed.write.',
+                      lambda: file.write("Bar"))
+
+@funk.with_context
 def test_if_mock_is_based_on_a_class_then_can_only_expect_methods_defined_on_that_class(context):
     class Database(object):
         def save(self):
