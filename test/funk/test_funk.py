@@ -89,6 +89,15 @@ def test_name_of_mock_is_used_in_exceptions(context):
     assert_raises_str(AssertionError, "Unexpected invocation: database.save()", lambda: named.save())
 
 @funk.with_context
+def test_if_name_is_not_provided_type_is_converted_to_name_if_supplied(context):
+    class UserRepository(object):
+        def fetch_all(self):
+            pass
+    mock = context.mock(UserRepository)
+    allows(mock).fetch_all()
+    assert_raises_str(AssertionError, "Unexpected invocation: user_repository.fetch_all(2)", lambda: mock.fetch_all(2))
+
+@funk.with_context
 def test_expected_methods_can_be_called_once_with_any_arguments_if_no_arguments_specified(context):
     return_value = "Oh my!"
     mock = context.mock()

@@ -141,8 +141,8 @@ class Context(object):
         self._mocks = []
         self._mock_factory = mock_factory
     
-    def mock(self, base=None, name='unnamed'):
-        mock = self._mock_factory(base, name)
+    def mock(self, base=None, name=None):
+        mock = self._mock_factory(base, self._generate_name(name, base))
         self._mocks.append(mock)
         return mock
         
@@ -152,3 +152,17 @@ class Context(object):
             
     def sequence(self):
         return Sequence()
+        
+    def _generate_name(self, name, base):
+        if name is not None:
+            return name
+        if base is None:
+            return "unnamed"
+        name = []
+        name.append(base.__name__[0].lower())
+        for character in base.__name__[1:]:
+            if character.isupper():
+                name.append("_%s" % character.lower())
+            else:
+                name.append(character)
+        return ''.join(name)
