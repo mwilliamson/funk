@@ -12,10 +12,6 @@ from funk.tools import assert_raises_str
 from funk.matchers import Matcher
 
 @funk.with_context
-def test_can_create_a_mock_object(context):
-    mock = context.mock()
-
-@funk.with_context
 def test_can_set_attributes_on_mock_objects(context):
     name = "the_blues"
     mock = context.mock()
