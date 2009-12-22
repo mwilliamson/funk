@@ -27,6 +27,10 @@
     
         Create a new :class:`~funk.Mock` tied to this context.
         
+    .. method:: sequence
+    
+        Create a new sequence that can be used as an argument to :func:`~funk.call.Call.in_sequence`.
+        
     .. method:: verify
     
         Verifies that all mocks created with this context have had their
@@ -90,7 +94,7 @@
     
 .. function:: allows(method_name)
 
-    Similar to :func:`funk.expects`, expect that the method can be called
+    Similar to :func:`funk.expects`, except that the method can be called
     any number of times, including none.
 
 .. module:: funk.call
@@ -156,3 +160,17 @@
             assert database.save() is return_one
             assert database.save() is return_two
         
+    .. method:: in_sequence(sequence)
+    
+        Adds a requirement that this method call only occur in this sequence.
+        This allows ordering of method calls to be specified. For instance, say
+        we want to close a file after writing to it. We can write the test like so::
+        
+            file = context.mock()
+            file_ordering = context.sequence()
+        
+            expects(file).write("Eggs").in_sequence(file_ordering)
+            expects(file).close().in_sequence(file_ordering)
+            
+       Then, if ``close`` is called before ``write``, an :class:`AssertionError`
+       will be raised.

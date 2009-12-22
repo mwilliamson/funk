@@ -14,6 +14,7 @@ Contents:
    guide
    funk
    matchers
+   tools
 
 Indices and tables
 ==================
