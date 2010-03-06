@@ -134,7 +134,7 @@
             ...
         
             calculator = context.mock()
-            calculator.allows('add').with_args(is_a(int), is_a(int)).returns(return_value)
+            allows(calculator).add(is_a(int), is_a(int)).returns(return_value)
             assert calculator.add(4, 9) is return_value
     
     .. method:: raises(exception)
@@ -172,5 +172,5 @@
             expects(file).write("Eggs").in_sequence(file_ordering)
             expects(file).close().in_sequence(file_ordering)
             
-       Then, if ``close`` is called before ``write``, an :class:`AssertionError`
-       will be raised.
+        Then, if ``close`` is called before ``write``, an :class:`AssertionError`
+        will be raised.
