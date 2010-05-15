@@ -50,7 +50,7 @@
         assert database.save("positional") is return_one
         
     Some calls can only be called a specified number of times -- specifically,
-    :func:`~funk.expects` only the created call to be called once. For instance::
+    :func:`~funk.expects` allows exactly one call. For instance::
     
         database = context.mock()
         expects(database).save().returns(return_one)
@@ -79,7 +79,7 @@
 
     Create an object to expect a method call on *mock*.  If the method is not
     called, an :class:`AssertionError` is raised. For instance, to expect
-    a method call save::
+    a method called save::
     
         database = context.mock()
         expects(database).save
