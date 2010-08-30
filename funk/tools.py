@@ -26,6 +26,9 @@ class ValueObject(object):
         for key in self._keys:
             attributes[key] = getattr(self, key)
         return "<value_object: %s>" % attributes
+    
+    def __repr__(self):
+        return str(self)
 
 def value_object(**kwargs):
     return ValueObject(kwargs)

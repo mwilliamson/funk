@@ -80,3 +80,7 @@ def test_value_object_str_shows_updated_attributes():
     obj = value_object(width=20)
     obj.width = 30
     assert_equals(str(obj), "<value_object: {'width': 30}>")
+
+def test_value_object_repr_is_same_as_str():
+    obj = value_object(width=20)
+    assert_equals(repr(obj), "<value_object: {'width': 20}>")
