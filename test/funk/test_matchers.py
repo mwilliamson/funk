@@ -7,6 +7,7 @@ from funk.matchers import equal_to
 from funk.matchers import not_
 from funk.matchers import all_of
 from funk.matchers import any_of
+from funk.matchers import is_
 
 def test_any_value_matches_everything():
     assert any_value().matches("foo", [])
@@ -238,3 +239,24 @@ def test_any_of_describes_all_matchers_when_match_fails():
     matcher = any_of(is_a_rectangle, is_20_wide)
     matcher.matches("Rectangle", mismatch_output)
     assert_equals([expected_output], mismatch_output)
+
+def test_is_uses_is_operator():
+    assert is_(None).matches(None, [])
+    m = {}
+    assert is_(m).matches(m, [])
+    assert not is_({}).matches({}, [])
+
+def test_is_str_uses_value_str():
+    assert_equals(str(is_("Blah")), "<is: Blah>")
+
+def test_equal_to_does_not_write_to_mismatch_output_if_it_matches():
+    m = {}
+    mismatch_output = []
+    assert is_(None).matches(None, mismatch_output)
+    assert is_(m).matches(m, mismatch_output)
+    assert not mismatch_output
+
+def test_equal_to_writes_str_of_non_matching_values_to_mismatch_output():
+    mismatch_output = []
+    is_("{}").matches("Hello!", mismatch_output)
+    assert_equals(["got: Hello!"], mismatch_output)

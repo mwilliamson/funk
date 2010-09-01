@@ -125,3 +125,19 @@ def any_of(*matchers):
 
 def _join_matchers(glue, matchers):
     return glue.join(["(%s)" % matcher for matcher in matchers])
+    
+class Is(Matcher):
+    def __init__(self, value):
+        self._value = value
+        
+    def matches(self, other, mismatch_output):
+        if self._value is not other:
+            mismatch_output.append("got: %s" % (other, ))
+            return False
+        return True
+        
+    def __str__(self):
+        return "<is: %s>" % (str(self._value), )
+        
+def is_(value):
+    return Is(value)
