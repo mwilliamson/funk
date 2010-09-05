@@ -8,6 +8,9 @@ from funk.util import function_call_str
 
 __all__ = ['with_context', 'Context', 'expects', 'allows', 'set_attr', 'expects_call', 'allows_call']
 
+class UnexpectedInvocationError(AssertionError):
+    pass
+
 class Mock(object):
     def __init__(self, base, name):
         self._mocked_calls = MockedCalls(base, name)
@@ -82,7 +85,7 @@ class MockedCallsForFunction(object):
                 return call(*args, **kwargs)
         
         call_str = function_call_str(self._name, args, kwargs)
-        raise AssertionError("Unexpected invocation: %s" % call_str)
+        raise UnexpectedInvocationError("Unexpected invocation: %s" % call_str)
 
 def with_context(test_function, mock_factory=None):
     @wraps(test_function)
