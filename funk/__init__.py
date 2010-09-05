@@ -9,16 +9,20 @@ from funk.util import function_call_str
 __all__ = ['with_context', 'Context', 'expects', 'allows', 'set_attr', 'expects_call', 'allows_call']
 
 class UnexpectedInvocationError(AssertionError):
-    pass
+    def __init__(self, mock_name, args, kwargs):
+        call_str = function_call_str(mock_name, args, kwargs)
+        super(UnexpectedInvocationError, self).__init__("Unexpected invocation: %s" % call_str)
 
 class Mock(object):
     def __init__(self, base, name):
         self._mocked_calls = MockedCalls(base, name)
+        self._base = base
         
     def __getattribute__(self, name):
         my = lambda name: object.__getattribute__(self, name)
         mocked_calls = my('_mocked_calls')
-        if name in mocked_calls:
+        base = my('_base')
+        if name in mocked_calls or (base is not None and hasattr(base, name)):
             return mocked_calls.for_method(name)
         return my(name)
         
@@ -55,7 +59,7 @@ class MockedCalls(object):
         return call
     
     def for_method(self, name):
-        return MockedCallsForFunction("%s.%s" % (self._mock_name, name), self._method_calls[name])
+        return MockedCallsForFunction("%s.%s" % (self._mock_name, name), self._method_calls.get(name, []))
     
     def for_self(self):
         return MockedCallsForFunction(self._mock_name, self._function_calls)
@@ -84,8 +88,7 @@ class MockedCallsForFunction(object):
             if call.accepts(args, kwargs):
                 return call(*args, **kwargs)
         
-        call_str = function_call_str(self._name, args, kwargs)
-        raise UnexpectedInvocationError("Unexpected invocation: %s" % call_str)
+        raise UnexpectedInvocationError(self._name, args, kwargs)
 
 def with_context(test_function, mock_factory=None):
     @wraps(test_function)

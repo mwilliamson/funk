@@ -111,6 +111,15 @@ def test_if_name_is_not_provided_type_is_converted_to_name_if_supplied(context):
     mock = context.mock(UserRepository)
     allows(mock).fetch_all()
     assert_raises_str(UnexpectedInvocationError, "Unexpected invocation: user_repository.fetch_all(2)", lambda: mock.fetch_all(2))
+    
+@funk.with_context
+def test_unexpected_invocation_is_raised_if_method_is_defined_on_base_class(context):
+    class UserRepository(object):
+        def fetch_all(self):
+            pass
+    mock = context.mock(UserRepository)
+    
+    assert_raises_str(UnexpectedInvocationError, "Unexpected invocation: user_repository.fetch_all()", lambda: mock.fetch_all())
 
 @funk.with_context
 def test_expected_methods_can_be_called_once_with_any_arguments_if_no_arguments_specified(context):
