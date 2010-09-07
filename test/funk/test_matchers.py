@@ -107,8 +107,8 @@ def test_equal_to_does_not_write_to_mismatch_output_if_it_matches():
 
 def test_equal_to_writes_str_of_non_matching_values_to_mismatch_output():
     mismatch_output = []
-    equal_to("got: bananas").matches(44, mismatch_output)
-    assert_equals(["44"], mismatch_output)
+    equal_to("banana").matches("coconut", mismatch_output)
+    assert_equals(["got 'coconut'"], mismatch_output)
 
 def test_not_negates_given_matcher():
     assert not not_(equal_to(1)).matches(1, [])
@@ -249,14 +249,14 @@ def test_is_uses_is_operator():
 def test_is_str_uses_value_str():
     assert_equals(str(is_("Blah")), "<is: Blah>")
 
-def test_equal_to_does_not_write_to_mismatch_output_if_it_matches():
+def test_is_does_not_write_to_mismatch_output_if_it_matches():
     m = {}
     mismatch_output = []
     assert is_(None).matches(None, mismatch_output)
     assert is_(m).matches(m, mismatch_output)
     assert not mismatch_output
 
-def test_equal_to_writes_str_of_non_matching_values_to_mismatch_output():
+def test_is_writes_str_of_non_matching_values_to_mismatch_output():
     mismatch_output = []
     is_("{}").matches("Hello!", mismatch_output)
     assert_equals(["got: Hello!"], mismatch_output)
