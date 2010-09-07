@@ -27,10 +27,10 @@ class Mock(object):
         return my(name)
         
     def __call__(self, *args, **kwargs):
-        return self._mocked_calls.for_self()(*args, **kwargs)
+        return object.__getattribute__(self, "_mocked_calls").for_self()(*args, **kwargs)
         
     def _verify(self):
-        self._mocked_calls.verify()
+        object.__getattribute__(self, "_mocked_calls").verify()
 
 class MockedCalls(object):
     def __init__(self, base, mock_name):
@@ -123,22 +123,22 @@ class ExpectationCreator(object):
 def expects(mock, method_name=None):
     if method_name is None:
         return ExpectationCreator(lambda method_name: expects(mock, method_name))
-    return mock._mocked_calls.add_method_call(method_name, IntegerCallCount(1))
+    return object.__getattribute__(mock, "_mocked_calls").add_method_call(method_name, IntegerCallCount(1))
 
 def allows(mock, method_name=None):
     if method_name is None:
         return ExpectationCreator(lambda method_name: allows(mock, method_name))
-    return mock._mocked_calls.add_method_call(method_name, InfiniteCallCount())
+    return object.__getattribute__(mock, "_mocked_calls").add_method_call(method_name, InfiniteCallCount())
     
 def set_attr(mock, **kwargs):
     for kwarg in kwargs:
         setattr(mock, kwarg, kwargs[kwarg])
 
 def expects_call(mock):
-    return MethodArgumentsSetter(mock._mocked_calls.add_function_call(IntegerCallCount(1)))
+    return MethodArgumentsSetter(object.__getattribute__(mock, "_mocked_calls").add_function_call(IntegerCallCount(1)))
 
 def allows_call(mock):
-    return MethodArgumentsSetter(mock._mocked_calls.add_function_call(InfiniteCallCount()))
+    return MethodArgumentsSetter(object.__getattribute__(mock, "_mocked_calls").add_function_call(InfiniteCallCount()))
 
 class Context(object):
     def __init__(self, mock_factory=None):

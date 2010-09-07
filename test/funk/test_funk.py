@@ -455,3 +455,25 @@ def test_calling_function_wrapped_in_with_context_raises_exception_if_context_al
         
     assert_raises(FunkyError, lambda: some_function(context=None))
 
+@funk.with_context
+def test_can_mock_methods_used_internally_by_mock(context):
+    mock = context.mock()
+    
+    expects(mock)._mocked_calls
+    expects(mock).save()
+    allows(mock)._mocked_calls
+    allows(mock).save()
+    expects_call(mock)
+    allows_call(mock)
+    
+    mock._mocked_calls()
+    mock.save()
+    mock()
+    
+    class UserRepository(object):
+        def _base(self):
+            pass
+    
+    based_mock = context.mock(UserRepository)
+    allows(based_mock)._base
+    
