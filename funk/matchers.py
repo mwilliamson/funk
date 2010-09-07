@@ -65,7 +65,7 @@ class EqualTo(Matcher):
         
     def matches(self, other, mismatch_output):
         if self._value != other:
-            mismatch_output.append(str(other))
+            mismatch_output.append("got %s" % repr(other))
             return False
         return True
         

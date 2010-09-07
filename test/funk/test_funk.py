@@ -78,39 +78,6 @@ def test_same_method_can_return_different_values_for_different_arguments_using_a
     assert mock.save("positional") is return_bar
     assert_raises(UnexpectedInvocationError, lambda: mock.save(key="word"))
     assert mock.save("one", "two", key="word", foo="bar") is return_foo
-
-@funk.with_context
-def test_name_of_mock_is_used_in_exceptions(context):
-    unnamed = context.mock()
-    named = context.mock(name='database')
-    allows(unnamed).save.with_args("positional")
-    allows(named).save.with_args("positional")
-    
-    assert_raises_str(UnexpectedInvocationError, "Unexpected invocation: unnamed.save()", lambda: unnamed.save())
-    assert_raises_str(UnexpectedInvocationError, "Unexpected invocation: database.save()", lambda: named.save())
-    
-@funk.with_context
-def test_unexpected_invocations_display_method_name_and_parameters(context):
-    mock = context.mock()
-    allows(mock).save.with_args()
-    
-    assert_raises_str(UnexpectedInvocationError, "Unexpected invocation: unnamed.save(positional)", lambda: mock.save("positional"))
-    assert_raises_str(UnexpectedInvocationError, "Unexpected invocation: unnamed.save(key=word)", lambda: mock.save(key="word"))
-    assert_raises_str(UnexpectedInvocationError, "Unexpected invocation: unnamed.save(one, two, foo=bar, key=word)", lambda: mock.save("one", "two", key="word", foo="bar"))
-    
-    mock = context.mock()
-    allows(mock).save.with_args(1)
-    
-    assert_raises_str(UnexpectedInvocationError, "Unexpected invocation: unnamed.save()", lambda: mock.save())
-
-@funk.with_context
-def test_if_name_is_not_provided_type_is_converted_to_name_if_supplied(context):
-    class UserRepository(object):
-        def fetch_all(self):
-            pass
-    mock = context.mock(UserRepository)
-    allows(mock).fetch_all()
-    assert_raises_str(UnexpectedInvocationError, "Unexpected invocation: user_repository.fetch_all(2)", lambda: mock.fetch_all(2))
     
 @funk.with_context
 def test_unexpected_invocation_is_raised_if_method_is_defined_on_base_class(context):
@@ -119,7 +86,85 @@ def test_unexpected_invocation_is_raised_if_method_is_defined_on_base_class(cont
             pass
     mock = context.mock(UserRepository)
     
-    assert_raises_str(UnexpectedInvocationError, "Unexpected invocation: user_repository.fetch_all()", lambda: mock.fetch_all())
+    assert_raises(UnexpectedInvocationError, lambda: mock.fetch_all())
+    
+@funk.with_context
+def test_no_expectations_listed_if_none_set(context):
+    class UserRepository(object):
+        def fetch_all(self):
+            pass
+    mock = context.mock(UserRepository)
+    
+    assert_raises_str(UnexpectedInvocationError,
+"""Unexpected invocation: user_repository.fetch_all()
+The following expectations on user_repository.fetch_all did not match:
+    No expectations set.""",
+                      lambda: mock.fetch_all())
+
+@funk.with_context
+def test_name_of_mock_is_used_in_exceptions_and_expectations_on_that_method_are_shown(context):
+    unnamed = context.mock()
+    named = context.mock(name='database')
+    allows(unnamed).save.with_args("positional")
+    allows(named).save.with_args("positional")
+    
+    assert_raises_str(UnexpectedInvocationError,
+"""Unexpected invocation: unnamed.save()
+The following expectations on unnamed.save did not match:
+    unnamed.save('positional') [wrong number of positional arguments]""",
+                      lambda: unnamed.save())
+    assert_raises_str(UnexpectedInvocationError,
+"""Unexpected invocation: database.save()
+The following expectations on database.save did not match:
+    database.save('positional') [wrong number of positional arguments]""",
+                      lambda: named.save())
+    
+@funk.with_context
+def test_unexpected_invocations_display_method_name_and_parameters(context):
+    class Database(object):
+        def save(self):
+            pass
+            
+    mock = context.mock(Database)
+    allows(mock).save.with_args()
+    
+    assert_raises_str(UnexpectedInvocationError,
+"""Unexpected invocation: database.save(positional)
+The following expectations on database.save did not match:
+    database.save() [wrong number of positional arguments]""",
+                      lambda: mock.save("positional"))
+    assert_raises_str(UnexpectedInvocationError,
+"""Unexpected invocation: database.save(key=word)
+The following expectations on database.save did not match:
+    database.save() [unexpected keyword arguments: key]""",
+                      lambda: mock.save(key="word"))
+    assert_raises_str(UnexpectedInvocationError,
+"""Unexpected invocation: database.save(one, two, foo=bar, key=word)
+The following expectations on database.save did not match:
+    database.save() [wrong number of positional arguments]""",
+                      lambda: mock.save("one", "two", key="word", foo="bar"))
+    
+    mock = context.mock(Database)
+    allows(mock).save.with_args(1)
+    
+    assert_raises_str(UnexpectedInvocationError,
+"""Unexpected invocation: database.save()
+The following expectations on database.save did not match:
+    database.save(1) [wrong number of positional arguments]""",
+                      lambda: mock.save())
+
+@funk.with_context
+def test_if_name_is_not_provided_type_is_converted_to_name_if_supplied(context):
+    class UserRepository(object):
+        def fetch_all(self):
+            pass
+    mock = context.mock(UserRepository)
+    allows(mock).fetch_all()
+    assert_raises_str(UnexpectedInvocationError,
+"""Unexpected invocation: user_repository.fetch_all(2)
+The following expectations on user_repository.fetch_all did not match:
+    user_repository.fetch_all() [wrong number of positional arguments]""",
+                      lambda: mock.fetch_all(2))
 
 @funk.with_context
 def test_expected_methods_can_be_called_once_with_any_arguments_if_no_arguments_specified(context):
@@ -212,11 +257,23 @@ def test_mocks_can_expect_calls_with_args(context):
 def test_unexpected_calls_on_mocks_display_mock_name_and_parameters(context):
     return_value = "Hello!"
     mock = context.mock(name='save')
-    assert_raises_str(UnexpectedInvocationError, "Unexpected invocation: save()", mock)
+    assert_raises_str(UnexpectedInvocationError,
+"""Unexpected invocation: save()
+The following expectations on save did not match:
+    No expectations set.""",
+                      mock)
     expects_call(mock).returns(return_value)
     mock()
-    assert_raises_str(UnexpectedInvocationError, "Unexpected invocation: save()", mock)
-    assert_raises_str(UnexpectedInvocationError, "Unexpected invocation: save(positional, key=word)", lambda: mock("positional", key="word"))
+    assert_raises_str(UnexpectedInvocationError,
+"""Unexpected invocation: save()
+The following expectations on save did not match:
+    No expectations set.""",
+                      mock)
+    assert_raises_str(UnexpectedInvocationError,
+"""Unexpected invocation: save(positional, key=word)
+The following expectations on save did not match:
+    No expectations set.""",
+                      lambda: mock("positional", key="word"))
     
 def test_function_raises_exception_if_expectations_of_calls_on_mock_are_not_satisfied():
     @funk.with_context

@@ -9,9 +9,15 @@ from funk.util import function_call_str
 __all__ = ['with_context', 'Context', 'expects', 'allows', 'set_attr', 'expects_call', 'allows_call']
 
 class UnexpectedInvocationError(AssertionError):
-    def __init__(self, mock_name, args, kwargs):
+    def __init__(self, mock_name, args, kwargs, expectations):
         call_str = function_call_str(mock_name, args, kwargs)
-        super(UnexpectedInvocationError, self).__init__("Unexpected invocation: %s" % call_str)
+        exception_str = ["Unexpected invocation: %s" % call_str]
+        exception_str.append("\nThe following expectations on %s did not match:\n    " % mock_name)
+        if len(expectations) > 0:
+            exception_str.append("\n   ".join(expectations))
+        else:
+            exception_str.append("No expectations set.")
+        super(UnexpectedInvocationError, self).__init__(''.join(exception_str))
 
 class Mock(object):
     def __init__(self, base, name):
@@ -84,11 +90,12 @@ class MockedCallsForFunction(object):
         self._calls = calls
         
     def __call__(self, *args, **kwargs):
+        desc = []
         for call in self._calls:
-            if call.accepts(args, kwargs):
+            if call.accepts(args, kwargs, desc):
                 return call(*args, **kwargs)
         
-        raise UnexpectedInvocationError(self._name, args, kwargs)
+        raise UnexpectedInvocationError(self._name, args, kwargs, desc)
 
 def with_context(test_function, mock_factory=None):
     @wraps(test_function)

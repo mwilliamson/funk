@@ -33,42 +33,42 @@ def test_raises_exception_if_exception_given():
 
 def test_accepts_returns_true_if_with_args_not_called():
     call = Call('save')
-    assert call.accepts((), {})
-    assert call.accepts((1, 2, 3), {"name": "Bob"})
+    assert call.accepts((), {}, [])
+    assert call.accepts((1, 2, 3), {"name": "Bob"}, [])
 
 def test_accepts_returns_true_if_arguments_match_those_set_by_with_args():
     call = Call('save')
     call.with_args(1, 2, name="Bob")
-    assert not call.accepts((), {})
-    assert not call.accepts((1, 2, 3), {"name": "Bob"})
-    assert not call.accepts((1, ), {"name": "Bob"})
-    assert call.accepts((1, 2), {"name": "Bob"})
+    assert not call.accepts((), {}, [])
+    assert not call.accepts((1, 2, 3), {"name": "Bob"}, [])
+    assert not call.accepts((1, ), {"name": "Bob"}, [])
+    assert call.accepts((1, 2), {"name": "Bob"}, [])
 
 def test_accepts_returns_true_if_call_count_is_greater_than_zero():
     call = Call('save', IntegerCallCount(2))
-    assert call.accepts([], {})
+    assert call.accepts([], {}, [])
     call()
-    assert call.accepts([], {})
+    assert call.accepts([], {}, [])
     call()
-    assert not call.accepts([], {})
+    assert not call.accepts([], {}, [])
 
 def test_not_specifying_call_count_allows_any_number_of_calls():
     call = Call('save')
     for x in range(0, 1000):
-        assert call.accepts([], {})
+        assert call.accepts([], {}, [])
         call()
 
 def test_error_is_raised_if_called_too_many_times():
     call = Call('save', IntegerCallCount(2))
     call()
     call()
-    assert_raises_str(FunkyError, "Cannot call any more times", call)
+    assert_raises_str(FunkyError, "Cannot call any more times", lambda: call())
     
 def test_error_is_raised_if_called_with_wrong_arguments():
     call = Call('save')
     call.with_args("positional")
     call("positional")
-    assert_raises_str(FunkyError, "Called with wrong arguments", lambda: call("wrong"))
+    assert_raises_str(FunkyError, "Called with wrong arguments", lambda: call(["wrong"], {}))
 
 def test_is_satisfied_if_called_as_many_times_as_initial_call_count():
     call = Call('save', IntegerCallCount(2))
@@ -100,11 +100,11 @@ def test_can_use_matchers_instead_of_values_for_positional_arguments_when_using_
     return_value = "Whoopee!"
     call = Call('save').with_args(BlahMatcher()).returns(return_value)
     
-    assert call.accepts(["Blah"], {})
-    assert not call.accepts([], {})
-    assert not call.accepts([], {'key': 'word'})
-    assert not call.accepts(["positional"], {})
-    assert not call.accepts(["positional"], {'key': 'word'})
+    assert call.accepts(["Blah"], {}, [])
+    assert not call.accepts([], {}, [])
+    assert not call.accepts([], {'key': 'word'}, [])
+    assert not call.accepts(["positional"], {}, [])
+    assert not call.accepts(["positional"], {'key': 'word'}, [])
     assert call("Blah") is return_value
 
 def test_can_use_matchers_instead_of_values_for_keyword_arguments_when_using_with_args():
@@ -115,13 +115,13 @@ def test_can_use_matchers_instead_of_values_for_keyword_arguments_when_using_wit
     return_value = "Whoopee!"
     call = Call('save').with_args(value=BlahMatcher()).returns(return_value)
     
-    assert call.accepts([], {'value': 'Blah'})
-    assert not call.accepts([], {})
-    assert not call.accepts([], {'key': 'word'})
-    assert not call.accepts(["positional"], {})
-    assert not call.accepts(["blah", "positional"], {})
-    assert not call.accepts(["positional"], {'key': 'word'})
-    assert not call.accepts([], {'key': 'word', 'value': 'Blah'})
+    assert call.accepts([], {'value': 'Blah'}, [])
+    assert not call.accepts([], {}, [])
+    assert not call.accepts([], {'key': 'word'}, [])
+    assert not call.accepts(["positional"], {}, [])
+    assert not call.accepts(["blah", "positional"], {}, [])
+    assert not call.accepts(["positional"], {'key': 'word'}, [])
+    assert not call.accepts([], {'key': 'word', 'value': 'Blah'}, [])
     assert call(value="Blah") is return_value
 
 def test_calling_in_sequence_adds_call_to_sequence():
@@ -154,3 +154,34 @@ def test_calling_call_registers_call_with_sequences():
     
     call()
     assert_equals(first_sequence.actual_calls, [call])
+
+def test_mismatch_description_indicates_when_number_of_positional_arguments_is_wrong():
+    call = Call('save').with_args()
+    mismatch_description = []
+    call.accepts(["banana"], {}, mismatch_description)
+    assert_equals(''.join(mismatch_description), "save() [wrong number of positional arguments]")
+
+def test_mismatch_description_indicates_whether_positional_arguments_matched_or_not():
+    call = Call('save').with_args("apple", "banana")
+    mismatch_description = []
+    call.accepts(["coconut", "banana"], {}, mismatch_description)
+    assert_equals(''.join(mismatch_description), "save('apple' [got 'coconut'], 'banana' [matched])")
+
+def test_mismatch_description_indicates_whether_keyword_argument_is_missing():
+    call = Call('save').with_args(fruit="banana", vegetable="cucumber", salad="caesar")
+    mismatch_description = []
+    call.accepts([], {"fruit": "banana"}, mismatch_description)
+    assert_equals(''.join(mismatch_description),
+                  "save(vegetable='cucumber', fruit='banana', salad='caesar') [missing keyword arguments: vegetable, salad]")
+
+def test_mismatch_description_indicates_whether_keyword_arguments_matched_or_not():
+    call = Call('save').with_args(vegetable="cucumber", fruit="banana")
+    mismatch_description = []
+    call.accepts([], {"vegetable": "cucumber", "fruit": "coconut"}, mismatch_description)
+    assert_equals(''.join(mismatch_description), "save(vegetable='cucumber' [matched], fruit='banana' [got 'coconut'])")
+
+def test_mismatch_description_shows_both_mismatching_positional_and_keyword_arguments():
+    call = Call('save').with_args("eggs", "potatoes", vegetable="cucumber", fruit="banana")
+    mismatch_description = []
+    call.accepts(["duck", "potatoes"], {"vegetable": "cucumber", "fruit": "coconut"}, mismatch_description)
+    assert_equals(''.join(mismatch_description), "save('eggs' [got 'duck'], 'potatoes' [matched], vegetable='cucumber' [matched], fruit='banana' [got 'coconut'])")
