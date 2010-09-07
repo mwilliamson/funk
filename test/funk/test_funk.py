@@ -186,7 +186,7 @@ def test_method_arguments_described_when_not_all_expectations_are_satisfied():
         expects(mock).save.with_args("positional", key="word")
         
     assert_raises_str(AssertionError,
-                      "Not all expectations were satisfied. Expected call: unnamed.save(positional, key=word)",
+                      "Not all expectations were satisfied. Expected call: unnamed.save('positional', key='word')",
                       function)
 
 @funk.with_context
@@ -235,7 +235,7 @@ def test_function_arguments_described_when_not_all_expectations_are_satisfied():
         expects_call(mock).with_args("positional", key="word")
         
     assert_raises_str(AssertionError,
-                      "Not all expectations were satisfied. Expected call: unnamed(positional, key=word)",
+                      "Not all expectations were satisfied. Expected call: unnamed('positional', key='word')",
                       function)
     
 @funk.with_context
@@ -351,7 +351,7 @@ def test_assertion_fails_if_calls_do_not_follow_sequence():
         file.write("Private investigations")
         
     assert_raises_str(AssertionError,
-                      "Invocation out of order. Expected file.write(Private investigations), but got file.close().",
+                      "Invocation out of order. Expected file.write('Private investigations'), but got file.close().",
                       test_function)
 
 @funk.with_context

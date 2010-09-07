@@ -84,7 +84,7 @@ def test_str_of_call_with_no_arguments_only_has_name_of_call():
 
 def test_str_of_call_with_arguments_shows_those_arguments():
     call = Call('save').with_args("one", "two", foo="bar", key="word")
-    assert_equals('save(one, two, foo=bar, key=word)', str(call))
+    assert_equals("save('one', 'two', foo='bar', key='word')", str(call))
 
 def test_call_that_allows_any_number_of_calls_is_always_satisfied():
     call = Call('save')

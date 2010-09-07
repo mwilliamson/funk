@@ -70,7 +70,7 @@ class EqualTo(Matcher):
         return True
         
     def __str__(self):
-        return str(self._value)
+        return repr(self._value)
         
 def equal_to(value):
     return EqualTo(value)

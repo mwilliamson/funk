@@ -97,7 +97,7 @@ def test_equal_to_matches_on_equality():
     assert not equal_to("Blah").matches(1, [])
 
 def test_equal_to_str_uses_value_str():
-    assert_equals(str(equal_to("Blah")), "Blah")
+    assert_equals(str(equal_to("Blah")), "'Blah'")
 
 def test_equal_to_does_not_write_to_mismatch_output_if_it_matches():
     mismatch_output = []
@@ -117,7 +117,7 @@ def test_not_negates_given_matcher():
     assert not_(equal_to("Blah")).matches(1, [])
 
 def test_not_to_str_prefixes_not_to_matcher_description():
-    assert_equals(str(not_(equal_to("Blah"))), "not Blah")
+    assert_equals(str(not_(equal_to("Blah"))), "not 'Blah'")
 
 def test_not_does_not_write_to_mismatch_output_if_it_matches():
     mismatch_output = []
@@ -128,7 +128,7 @@ def test_not_does_not_write_to_mismatch_output_if_it_matches():
 def test_not_writes_matcher_as_mismatch_description():
     mismatch_output = []
     not_(equal_to("Blah")).matches("Blah", mismatch_output)
-    assert_equals(['got value matching: Blah'], mismatch_output)
+    assert_equals(["got value matching: 'Blah'"], mismatch_output)
 
 def test_all_of_passes_if_all_matchers_satisfied():
     class Rectangle(object):
