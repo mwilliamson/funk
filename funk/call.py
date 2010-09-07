@@ -29,8 +29,7 @@ class IntegerCallCount(object):
         return self.none_remaining()
 
 class Call(object):
-    _allowed_args = None
-    _allowed_kwargs = None
+    _arguments_set = False
     
     def __init__(self, name, call_count=InfiniteCallCount()):
         self._name = name
@@ -42,6 +41,11 @@ class Call(object):
         return self._name == name
     
     def accepts(self, args, kwargs, mismatch_description):
+        if self._call_count.none_remaining():
+            return False
+        if not self._arguments_set:
+            return True
+            
         def describe_arg((allowed, actual)):
             desc = []
             if allowed.matches(actual, desc):
@@ -58,32 +62,30 @@ class Call(object):
         def describe_mismatch():
             kwargs_desc = describe_kwargs(self._allowed_kwargs, kwargs)
             return function_call_str(self._name, map(describe_arg, zip(self._allowed_args, args)), kwargs_desc)
-        
-        if self._call_count.none_remaining():
-            return False
-        if self._allowed_args is not None:
-            if len(self._allowed_args) != len(args):
-                mismatch_description.append("%s [wrong number of positional arguments]" % str(self))
-                return False
-        if self._allowed_kwargs is not None:
-            missing_kwargs = set(self._allowed_kwargs.keys()) - set(kwargs.keys())
-            if len(missing_kwargs) > 0:
-                mismatch_description.append("%s [missing keyword arguments: %s]" % (str(self), ", ".join(missing_kwargs)))
-                return False
-            extra_kwargs = set(kwargs.keys()) - set(self._allowed_kwargs.keys())
-            if len(extra_kwargs) > 0:
-                mismatch_description.append("%s [unexpected keyword arguments: %s]" % (str(self), ", ".join(extra_kwargs)))
-                return False
             
-        if self._allowed_args is not None and not all(map(lambda (matcher, arg): matcher.matches(arg, []), zip(self._allowed_args, args))):
+        if len(self._allowed_args) != len(args):
+            mismatch_description.append("%s [wrong number of positional arguments]" % str(self))
+            return False
+            
+        missing_kwargs = set(self._allowed_kwargs.keys()) - set(kwargs.keys())
+        if len(missing_kwargs) > 0:
+            mismatch_description.append("%s [missing keyword arguments: %s]" % (str(self), ", ".join(missing_kwargs)))
+            return False
+            
+        extra_kwargs = set(kwargs.keys()) - set(self._allowed_kwargs.keys())
+        if len(extra_kwargs) > 0:
+            mismatch_description.append("%s [unexpected keyword arguments: %s]" % (str(self), ", ".join(extra_kwargs)))
+            return False
+            
+        if not all(map(lambda (matcher, arg): matcher.matches(arg, []), zip(self._allowed_args, args))):
             mismatch_description.append(describe_mismatch())
             return False
         
-        if self._allowed_kwargs is not None:
-            for key in self._allowed_kwargs:
-                if not self._allowed_kwargs[key].matches(kwargs[key], []):
-                    mismatch_description.append(describe_mismatch())
-                    return False
+        for key in self._allowed_kwargs:
+            if not self._allowed_kwargs[key].matches(kwargs[key], []):
+                mismatch_description.append(describe_mismatch())
+                return False
+                
         return True
     
     def __call__(self, *args, **kwargs):
@@ -97,6 +99,7 @@ class Call(object):
         return self._action()
     
     def with_args(self, *args, **kwargs):
+        self._arguments_set = True
         self._allowed_args = tuple(map(self._to_matcher, args))
         self._allowed_kwargs = dict([(key, self._to_matcher(kwargs[key])) for key in kwargs])
         return self
@@ -125,6 +128,6 @@ class Call(object):
         return equal_to(value)
 
     def __str__(self):
-        if self._allowed_args is not None:
+        if self._arguments_set:
             return function_call_str(self._name, map(str, self._allowed_args), self._allowed_kwargs)
         return self._name
