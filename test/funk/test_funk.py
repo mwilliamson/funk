@@ -267,12 +267,12 @@ The following expectations on save did not match:
     assert_raises_str(UnexpectedInvocationError,
 """Unexpected invocation: save()
 The following expectations on save did not match:
-    No expectations set.""",
+    save [expectation has already been satisfied]""",
                       mock)
     assert_raises_str(UnexpectedInvocationError,
 """Unexpected invocation: save(positional, key=word)
 The following expectations on save did not match:
-    No expectations set.""",
+    save [expectation has already been satisfied]""",
                       lambda: mock("positional", key="word"))
     
 def test_function_raises_exception_if_expectations_of_calls_on_mock_are_not_satisfied():

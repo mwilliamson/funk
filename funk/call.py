@@ -42,6 +42,7 @@ class Call(object):
     
     def accepts(self, args, kwargs, mismatch_description):
         if self._call_count.none_remaining():
+            mismatch_description.append("%s [expectation has already been satisfied]" % str(self))
             return False
         if not self._arguments_set:
             return True

@@ -155,6 +155,13 @@ def test_calling_call_registers_call_with_sequences():
     call()
     assert_equals(first_sequence.actual_calls, [call])
 
+def test_mismatch_description_indicates_when_expectation_has_already_been_satisfied():
+    call = Call('save', IntegerCallCount(1)).with_args()
+    call()
+    mismatch_description = []
+    call.accepts([], {}, mismatch_description)
+    assert_equals(''.join(mismatch_description), "save() [expectation has already been satisfied]")
+
 def test_mismatch_description_indicates_when_number_of_positional_arguments_is_wrong():
     call = Call('save').with_args()
     mismatch_description = []
