@@ -14,7 +14,7 @@ class UnexpectedInvocationError(AssertionError):
         exception_str = ["Unexpected invocation: %s" % call_str]
         exception_str.append("\nThe following expectations on %s did not match:\n    " % mock_name)
         if len(expectations) > 0:
-            exception_str.append("\n   ".join(expectations))
+            exception_str.append("\n    ".join(expectations))
         else:
             exception_str.append("No expectations set.")
         super(UnexpectedInvocationError, self).__init__(''.join(exception_str))
