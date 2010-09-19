@@ -15,6 +15,7 @@ Contents:
    funk
    matchers
    tools
+   cheat-sheet
 
 Indices and tables
 ==================

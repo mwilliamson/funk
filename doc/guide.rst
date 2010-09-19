@@ -2,7 +2,7 @@ Getting started with Funk
 =========================
 
 Let's say we have a :class:`TagRepository` class, which has a :func:`fetch_all`
-method on it. This class will go and fetch instances of :class:`Tag` from the
+method on it. This method will fetch all instances of :class:`Tag` from the
 database for us. The :class:`Tag` class looks like this::
 
     class Tag(object):
@@ -12,21 +12,22 @@ database for us. The :class:`Tag` class looks like this::
 We also have a class that we'd like to test, called :class:`TagDisplayer`. Its
 constructor takes a :class:`TagRepository`, and has a method :func:`display_all`.
 We expect that this method will grab all of the tags from the respository,
+sort them into alphabetical order,
 and write their names into a string, separated by new lines. So, we can write
 our test function like so (I'm using nose as the testing framework, but other
 testing frameworks should work just fine)::
 
     from nose.tools import assert_equals
-    from funk import with_context
+    import funk
     from funk import expects
 
-    @with_context
-    def test_tag_displayer_writes_all_tag_names_onto_separate_lines(context):
-        tag_repository = context.mock(name='tag_repository')
+    @funk.with_context
+    def test_tag_displayer_writes_all_tag_names_in_alphabetical_order_onto_separate_lines(context):
+        tag_repository = context.mock(TagRepository)
         expects(tag_repository).fetch_all(sorted=False).returns([Tag('python'), Tag('debian')])
         
         tag_displayer = TagDisplayer(tag_repository)
-        assert_equals(tag_displayer.display_all(), 'python\ndebian')
+        assert_equals(tag_displayer.display_all(), 'debian\npython')
 
 Note the that test method takes a context as an argument.
 If necessary, you can build you own instances by calling :class:`funk.Context`.
