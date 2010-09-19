@@ -40,7 +40,9 @@
 .. function:: has_attr(**attributes)
 
     Matches *actual* if, for every pair *(key, value)* in *attributes*,
-    ``actual.key == value``.
+    ``actual.key`` matches ``value``. If ``value`` is a matcher, then
+    ``value.matches`` is used to determine if there is a match. Otherwise,
+    ``actual`` matches ``value`` if ``actual == value``.
 
 .. function:: equal_to(value)
 
