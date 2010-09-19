@@ -165,12 +165,12 @@
         Adds a requirement that this method call only occur in this sequence.
         This allows ordering of method calls to be specified. For instance, say
         we want to close a file after writing to it. We can write the test like so::
-        
-            file = context.mock()
+
+            file_ = context.mock(file)
             file_ordering = context.sequence()
-        
-            expects(file).write("Eggs").in_sequence(file_ordering)
-            expects(file).close().in_sequence(file_ordering)
+
+            expects(file_).write("Eggs").in_sequence(file_ordering)
+            expects(file_).close().in_sequence(file_ordering)
             
         Then, if ``close`` is called before ``write``, an :class:`AssertionError`
         will be raised.

@@ -110,3 +110,16 @@ Actions
 +------------------------------------+-----------------------------------------------------------------------+
 |``returns(value)``                  |  Returns ``value``.                                                   |
 +------------------------------------+-----------------------------------------------------------------------+
+
+Sequences
+---------
+
+A sequence object can be created using :meth:`~funk.Context.sequence`.
+The sequencing on objects can then be defined using :meth:`~funk.call.Call.in_sequence`.
+For instance, to ensure a file is written to before it is closed::
+
+    file_ = context.mock(file)
+    file_ordering = context.sequence()
+
+    expects(file_).write("Eggs").in_sequence(file_ordering)
+    expects(file_).close().in_sequence(file_ordering)
