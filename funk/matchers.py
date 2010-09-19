@@ -40,7 +40,9 @@ def is_a(type_):
 
 class HasAttr(Matcher):
     def __init__(self, attributes):
-        self._attributes = attributes
+        self._attributes = {}
+        for key, value in attributes.iteritems():
+            self._attributes[key] = self._to_matcher(value)
         
     def matches(self, value, mismatch_output):
         for key in self._attributes:
@@ -48,10 +50,15 @@ class HasAttr(Matcher):
                 mismatch_output.append("value was missing attribute: %s" % key)
                 return False
             attr_value = getattr(value, key)
-            if attr_value != self._attributes[key]:
+            if not self._attributes[key].matches(attr_value, []):
                 mismatch_output.append("got <value with attribute: %s=%s>" % (key, attr_value))
                 return False
         return True
+        
+    def _to_matcher(self, value):
+        if isinstance(value, Matcher):
+            return value
+        return equal_to(value)
         
     def __str__(self):
         return "<value with attributes: %s>" % arguments_str([], self._attributes)
