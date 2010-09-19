@@ -1,6 +1,6 @@
 from funk.util import arguments_str
 
-__all__ = ['any_value', 'is_a', 'has_attr', 'equal_to', 'not_', 'all_of', 'any_of']
+__all__ = ['any_value', 'is_a', 'has_attr', 'equal_to', 'not_', 'all_of', 'any_of', 'is_']
 
 class Matcher(object):
     pass
