@@ -46,6 +46,10 @@
 
     Matches any value equal to *value*.
 
+.. function:: is_(value)
+
+    Matches *actual* if ``actual is value``.
+
 .. function:: not_(matcher)
 
     Negates the given matcher. For instance, ``not_(equal_to(20))`` will match
