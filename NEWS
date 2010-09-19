@@ -1,0 +1,10 @@
+Funk 0.3, 2010-xx-xx
+
+  * Adding sequence objects to allow the ordering of method calls on mock objects
+    to be tested.
+    
+  * Adding new matcher is_.
+  
+  * Better error messages when there are unexpected method invocations -- all
+    expected invocations on that method are listed, and the reason for the
+    mismatch is given.
