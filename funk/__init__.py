@@ -10,7 +10,11 @@ __all__ = ['with_context', 'Context', 'expects', 'allows', 'set_attr', 'expects_
 
 class UnexpectedInvocationError(AssertionError):
     def __init__(self, mock_name, args, kwargs, expectations):
-        call_str = function_call_str(mock_name, args, kwargs)
+        args_str = map(repr, args)
+        kwargs_str = {}
+        for key, value in kwargs.iteritems():
+            kwargs_str[key] = repr(value)
+        call_str = function_call_str(mock_name, args_str, kwargs_str)
         exception_str = ["Unexpected invocation: %s" % call_str]
         exception_str.append("\nThe following expectations on %s did not match:\n    " % mock_name)
         if len(expectations) > 0:

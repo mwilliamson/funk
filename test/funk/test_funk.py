@@ -129,17 +129,17 @@ def test_unexpected_invocations_display_method_name_and_parameters(context):
     allows(mock).save.with_args()
     
     assert_raises_str(UnexpectedInvocationError,
-"""Unexpected invocation: database.save(positional)
+"""Unexpected invocation: database.save('positional')
 The following expectations on database.save did not match:
     database.save() [wrong number of positional arguments]""",
                       lambda: mock.save("positional"))
     assert_raises_str(UnexpectedInvocationError,
-"""Unexpected invocation: database.save(key=word)
+"""Unexpected invocation: database.save(key='word')
 The following expectations on database.save did not match:
     database.save() [unexpected keyword arguments: key]""",
                       lambda: mock.save(key="word"))
     assert_raises_str(UnexpectedInvocationError,
-"""Unexpected invocation: database.save(one, two, foo=bar, key=word)
+"""Unexpected invocation: database.save('one', 'two', foo='bar', key='word')
 The following expectations on database.save did not match:
     database.save() [wrong number of positional arguments]""",
                       lambda: mock.save("one", "two", key="word", foo="bar"))
@@ -270,7 +270,7 @@ The following expectations on save did not match:
     save [expectation has already been satisfied]""",
                       mock)
     assert_raises_str(UnexpectedInvocationError,
-"""Unexpected invocation: save(positional, key=word)
+"""Unexpected invocation: save('positional', key='word')
 The following expectations on save did not match:
     save [expectation has already been satisfied]""",
                       lambda: mock("positional", key="word"))
