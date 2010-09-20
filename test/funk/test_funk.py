@@ -154,6 +154,18 @@ The following expectations on database.save did not match:
                       lambda: mock.save())
 
 @funk.with_context
+def test_argument_mismatches_are_show_on_separate_lines(context):
+    mock = context.mock(name="database")
+    allows(mock).save("Apples", "Bananas")
+    
+    assert_raises_str(UnexpectedInvocationError,
+"""Unexpected invocation: database.save('Apples', 'Peaches')
+The following expectations on database.save did not match:
+    database.save('Apples' [matched],
+                  'Bananas' [got 'Peaches'])""",
+                      lambda: mock.save("Apples", "Peaches"))
+
+@funk.with_context
 def test_if_name_is_not_provided_type_is_converted_to_name_if_supplied(context):
     class UserRepository(object):
         def fetch_all(self):
