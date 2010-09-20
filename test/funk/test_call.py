@@ -172,7 +172,7 @@ def test_mismatch_description_indicates_whether_positional_arguments_matched_or_
     call = Call('save').with_args("apple", "banana")
     mismatch_description = []
     call.accepts(["coconut", "banana"], {}, mismatch_description)
-    assert_equals(''.join(mismatch_description), "save('apple' [got 'coconut'], 'banana' [matched])")
+    assert_equals(''.join(mismatch_description), "save('apple' [got 'coconut'],\n     'banana' [matched])")
 
 def test_mismatch_description_indicates_whether_keyword_argument_is_missing():
     call = Call('save').with_args(fruit="banana", vegetable="cucumber", salad="caesar")
@@ -185,10 +185,11 @@ def test_mismatch_description_indicates_whether_keyword_arguments_matched_or_not
     call = Call('save').with_args(vegetable="cucumber", fruit="banana")
     mismatch_description = []
     call.accepts([], {"vegetable": "cucumber", "fruit": "coconut"}, mismatch_description)
-    assert_equals(''.join(mismatch_description), "save(vegetable='cucumber' [matched], fruit='banana' [got 'coconut'])")
+    assert_equals(''.join(mismatch_description), "save(vegetable='cucumber' [matched],\n     fruit='banana' [got 'coconut'])")
 
 def test_mismatch_description_shows_both_mismatching_positional_and_keyword_arguments():
     call = Call('save').with_args("eggs", "potatoes", vegetable="cucumber", fruit="banana")
     mismatch_description = []
     call.accepts(["duck", "potatoes"], {"vegetable": "cucumber", "fruit": "coconut"}, mismatch_description)
-    assert_equals(''.join(mismatch_description), "save('eggs' [got 'duck'], 'potatoes' [matched], vegetable='cucumber' [matched], fruit='banana' [got 'coconut'])")
+    assert_equals(''.join(mismatch_description),
+                  "save('eggs' [got 'duck'],\n     'potatoes' [matched],\n     vegetable='cucumber' [matched],\n     fruit='banana' [got 'coconut'])")

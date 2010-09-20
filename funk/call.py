@@ -1,5 +1,6 @@
 from funk.error import FunkyError
 from funk.util import function_call_str
+from funk.util import function_call_str_multiple_lines
 from funk.matchers import Matcher
 from funk.matchers import equal_to
 
@@ -59,8 +60,9 @@ class Call(object):
             return kwargs_desc
         
         def describe_mismatch():
+            args_desc = map(describe_arg, zip(self._allowed_args, args))
             kwargs_desc = describe_kwargs(self._allowed_kwargs, kwargs)
-            return function_call_str(self._name, map(describe_arg, zip(self._allowed_args, args)), kwargs_desc)
+            return function_call_str_multiple_lines(self._name, args_desc, kwargs_desc)
             
         if len(self._allowed_args) != len(args):
             mismatch_description.append("%s [wrong number of positional arguments]" % str(self))
