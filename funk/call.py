@@ -1,5 +1,3 @@
-from sets import Set as set
-
 from funk.error import FunkyError
 from funk.util import function_call_str
 from funk.matchers import Matcher
