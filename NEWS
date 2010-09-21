@@ -1,4 +1,4 @@
-Funk 0.3, 2010-xx-xx
+Funk 0.3, 2010-09-21
 
   * Adding sequence objects to allow the ordering of method calls on mock objects
     to be tested.
