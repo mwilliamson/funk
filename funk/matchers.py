@@ -1,6 +1,7 @@
 from funk.util import arguments_str
 
-__all__ = ['any_value', 'is_a', 'has_attr', 'equal_to', 'not_', 'all_of', 'any_of', 'is_']
+__all__ = ['any_value', 'is_a', 'has_attr', 'equal_to', 'not_', 'all_of',
+           'any_of', 'is_', 'contains_exactly']
 
 class Matcher(object):
     pass
@@ -148,3 +149,34 @@ class Is(Matcher):
         
 def is_(value):
     return Is(value)
+
+def _is_iterable(value):
+    try:
+        iter(value)
+        return True
+    except TypeError:
+        return False
+
+class ContainsExactly(Matcher):
+    def __init__(self, matchers):
+        self._matchers = matchers
+        
+    def matches(self, other, mismatch_output):
+        if not _is_iterable(other):
+            return False
+        other = list(other)
+        for matcher in self._matchers:
+            matched = False
+            for index, element in enumerate(other):
+                if matcher.matches(element, []):
+                    matched = True
+                    other.pop(index)
+                    break
+            if not matched:
+                return False
+        if len(other) > 0:
+            return False
+        return True
+
+def contains_exactly(*matchers):
+    return ContainsExactly(matchers)

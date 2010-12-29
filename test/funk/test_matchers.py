@@ -8,6 +8,7 @@ from funk.matchers import not_
 from funk.matchers import all_of
 from funk.matchers import any_of
 from funk.matchers import is_
+from funk.matchers import contains_exactly
 
 def test_any_value_matches_everything():
     assert any_value().matches("foo", [])
@@ -270,3 +271,19 @@ def test_is_writes_str_of_non_matching_values_to_mismatch_output():
     mismatch_output = []
     is_("{}").matches("Hello!", mismatch_output)
     assert_equals(["got: Hello!"], mismatch_output)
+
+def test_contains_exactly_empty_array_only_matches_empty_collections():
+    assert contains_exactly().matches([], [])
+    assert contains_exactly().matches((), [])
+    assert not contains_exactly().matches([None], [])
+    assert not contains_exactly().matches((None, ), [])
+    assert not contains_exactly().matches(None, [])
+    
+def test_contains_exactly_matches_any_collection_with_only_those_elements_in_any_order():
+    assert contains_exactly(equal_to(42), equal_to(9)).matches([42, 9], [])
+    assert contains_exactly(equal_to(42), equal_to(9)).matches([9, 42], [])
+    assert not contains_exactly(equal_to(42), equal_to(9)).matches([42], [])
+    assert not contains_exactly(equal_to(42), equal_to(9)).matches([9], [])
+    assert not contains_exactly(equal_to(42), equal_to(9)).matches([], [])
+    assert not contains_exactly(equal_to(42), equal_to(9)).matches([42, 9, 1], [])
+
