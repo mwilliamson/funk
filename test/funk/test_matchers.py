@@ -309,7 +309,11 @@ def test_contains_exactly_writes_not_iterable_to_mismatch_output_if_not_passed_a
     contains_exactly(equal_to(42), equal_to(9)).matches(None, mismatch_output)
     assert_equals(["was not iterable"], mismatch_output)
 
-def test_contain_exactly_writes_extra_elements_to_mismatch_output():
+def test_contains_exactly_writes_extra_elements_to_mismatch_output():
     mismatch_output = []
     contains_exactly(equal_to(42), equal_to(9)).matches([42, 1, 9, "eggs"], mismatch_output)
     assert_equals(["iterable contained extra elements: 1, 'eggs'"], mismatch_output)
+
+def test_contains_exactly_converts_non_matcher_elements_to_matchers_using_equal_to():
+    assert contains_exactly(42, 9).matches([42, 9], [])
+    assert not contains_exactly(42, 9).matches([42, 9, 1], [])

@@ -185,4 +185,9 @@ class ContainsExactly(Matcher):
         return "<iterable containing exactly: %s>" % (", ".join(map(str, self._matchers)), )
 
 def contains_exactly(*matchers):
-    return ContainsExactly(matchers)
+    return ContainsExactly(map(to_matcher, matchers))
+
+def to_matcher(value):
+    if isinstance(value, Matcher):
+        return value
+    return equal_to(value)

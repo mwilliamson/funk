@@ -11,3 +11,4 @@ def method_call_str(object_name, method_name, args, kwargs):
 
 def function_call_str_multiple_lines(name, args, kwargs):
     return "%s(%s)" % (name, arguments_str(args, kwargs, ",\n" + " " * (len(name) + 1)))
+    

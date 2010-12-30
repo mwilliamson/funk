@@ -1,6 +1,7 @@
 from funk.error import FunkyError
 from funk.util import function_call_str
 from funk.util import function_call_str_multiple_lines
+from funk.matchers import to_matcher
 from funk.matchers import Matcher
 from funk.matchers import equal_to
 
@@ -101,8 +102,8 @@ class Call(object):
     
     def with_args(self, *args, **kwargs):
         self._arguments_set = True
-        self._allowed_args = tuple(map(self._to_matcher, args))
-        self._allowed_kwargs = dict([(key, self._to_matcher(kwargs[key])) for key in kwargs])
+        self._allowed_args = tuple(map(to_matcher, args))
+        self._allowed_kwargs = dict([(key, to_matcher(kwargs[key])) for key in kwargs])
         return self
     
     def returns(self, return_value):
@@ -122,11 +123,6 @@ class Call(object):
 
     def is_satisfied(self):
         return self._call_count.is_satisfied()
-
-    def _to_matcher(self, value):
-        if isinstance(value, Matcher):
-            return value
-        return equal_to(value)
 
     def __str__(self):
         if self._arguments_set:
