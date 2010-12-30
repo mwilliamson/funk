@@ -287,3 +287,5 @@ def test_contains_exactly_matches_any_collection_with_only_those_elements_in_any
     assert not contains_exactly(equal_to(42), equal_to(9)).matches([], [])
     assert not contains_exactly(equal_to(42), equal_to(9)).matches([42, 9, 1], [])
 
+def test_contains_exactly_describes_all_sub_matchers():
+    assert_equals(str(contains_exactly(equal_to(42), equal_to(9))), "<iterable containing exactly: 42, 9>")

@@ -177,6 +177,9 @@ class ContainsExactly(Matcher):
         if len(other) > 0:
             return False
         return True
+        
+    def __str__(self):
+        return "<iterable containing exactly: %s>" % (", ".join(map(str, self._matchers)), )
 
 def contains_exactly(*matchers):
     return ContainsExactly(matchers)
