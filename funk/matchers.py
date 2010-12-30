@@ -163,6 +163,7 @@ class ContainsExactly(Matcher):
         
     def matches(self, other, mismatch_output):
         if not _is_iterable(other):
+            mismatch_output.append("was not iterable")
             return False
         other = list(other)
         for matcher in self._matchers:
@@ -173,8 +174,10 @@ class ContainsExactly(Matcher):
                     other.pop(index)
                     break
             if not matched:
+                mismatch_output.append("iterable did not contain element: %s" % matcher)
                 return False
         if len(other) > 0:
+            mismatch_output.append("iterable contained extra elements: %s" % (", ".join(map(repr, other))))
             return False
         return True
         

@@ -281,6 +281,7 @@ def test_contains_exactly_empty_array_only_matches_empty_collections():
     
 def test_contains_exactly_matches_any_collection_with_only_those_elements_in_any_order():
     assert contains_exactly(equal_to(42), equal_to(9)).matches([42, 9], [])
+    assert contains_exactly(equal_to(42), equal_to(9)).matches(set([42, 9]), [])
     assert contains_exactly(equal_to(42), equal_to(9)).matches([9, 42], [])
     assert not contains_exactly(equal_to(42), equal_to(9)).matches([42], [])
     assert not contains_exactly(equal_to(42), equal_to(9)).matches([9], [])
@@ -289,3 +290,26 @@ def test_contains_exactly_matches_any_collection_with_only_those_elements_in_any
 
 def test_contains_exactly_describes_all_sub_matchers():
     assert_equals(str(contains_exactly(equal_to(42), equal_to(9))), "<iterable containing exactly: 42, 9>")
+
+def test_contains_exactly_does_not_write_to_mismatch_output_if_it_matches():
+    mismatch_output = []
+    assert contains_exactly().matches([], mismatch_output)
+    assert contains_exactly().matches((), mismatch_output)
+    assert contains_exactly(equal_to(42), equal_to(9)).matches([42, 9], mismatch_output)
+    assert contains_exactly(equal_to(42), equal_to(9)).matches([9, 42], mismatch_output)
+    assert not mismatch_output
+
+def test_contains_exactly_describes_missing_element_in_mismatch_output():
+    mismatch_output = []
+    contains_exactly(equal_to(42), equal_to(9)).matches([42], mismatch_output)
+    assert_equals(["iterable did not contain element: 9"], mismatch_output)
+
+def test_contains_exactly_writes_not_iterable_to_mismatch_output_if_not_passed_an_iterable():
+    mismatch_output = []
+    contains_exactly(equal_to(42), equal_to(9)).matches(None, mismatch_output)
+    assert_equals(["was not iterable"], mismatch_output)
+
+def test_contain_exactly_writes_extra_elements_to_mismatch_output():
+    mismatch_output = []
+    contains_exactly(equal_to(42), equal_to(9)).matches([42, 1, 9, "eggs"], mismatch_output)
+    assert_equals(["iterable contained extra elements: 1, 'eggs'"], mismatch_output)
