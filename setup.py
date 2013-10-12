@@ -8,5 +8,8 @@ setup(
     author_email='mike@zwobble.org',
     url='http://github.com/mwilliamson/funk',
     packages=['funk'],
+    install_requires=[
+        "six>=1.4.1,<2.0",
+    ],
     license='BSD License'
 )

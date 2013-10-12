@@ -47,7 +47,7 @@ class Call(object):
         if not self._arguments_set:
             return True
             
-        def describe_arg((allowed, actual)):
+        def describe_arg(allowed, actual):
             desc = []
             if allowed.matches(actual, desc):
                 return "%s [matched]" % (allowed, )
@@ -57,11 +57,11 @@ class Call(object):
         def describe_kwargs(allowed_kwargs, actual_kwargs):
             kwargs_desc = {}
             for key in allowed_kwargs:
-                kwargs_desc[key] = describe_arg((allowed_kwargs[key], actual_kwargs[key]))
+                kwargs_desc[key] = describe_arg(allowed_kwargs[key], actual_kwargs[key])
             return kwargs_desc
         
         def describe_mismatch():
-            args_desc = map(describe_arg, zip(self._allowed_args, args))
+            args_desc = map(describe_arg, self._allowed_args, args)
             kwargs_desc = describe_kwargs(self._allowed_kwargs, kwargs)
             return function_call_str_multiple_lines(self._name, args_desc, kwargs_desc)
             
@@ -79,7 +79,7 @@ class Call(object):
             mismatch_description.append("%s [unexpected keyword arguments: %s]" % (str(self), ", ".join(extra_kwargs)))
             return False
             
-        if not all(map(lambda (matcher, arg): matcher.matches(arg, []), zip(self._allowed_args, args))):
+        if not all(map(lambda matcher, arg: matcher.matches(arg, []), self._allowed_args, args)):
             mismatch_description.append(describe_mismatch())
             return False
         

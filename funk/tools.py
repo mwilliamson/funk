@@ -5,7 +5,7 @@ def assert_raises_str(exception, message, function, *args, **kwargs):
     try:
         function(*args, **kwargs)
         passed = False
-    except exception, e:
+    except exception as e:
         assert_equals(message, str(e))
     if not passed:
         raise AssertionError("%s was not raised" % exception.__name__)

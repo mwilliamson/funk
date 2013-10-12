@@ -1,3 +1,5 @@
+import six
+
 from funk.util import arguments_str
 
 __all__ = ['any_value', 'is_a', 'has_attr', 'equal_to', 'not_', 'all_of',
@@ -30,7 +32,8 @@ class IsA(Matcher):
         return self._describe(self._type)
         
     def _describe(self, value_type):
-        if value_type.__module__ == "__builtin__":
+        module = value_type.__module__
+        if (six.PY2 and module == "__builtin__") or (six.PY3 and module == "builtins"):
             module_prefix = ''
         else:
             module_prefix = '%s.' % value_type.__module__
@@ -42,7 +45,7 @@ def is_a(type_):
 class HasAttr(Matcher):
     def __init__(self, attributes):
         self._attributes = {}
-        for key, value in attributes.iteritems():
+        for key, value in six.iteritems(attributes):
             self._attributes[key] = self._to_matcher(value)
         
     def matches(self, value, mismatch_output):

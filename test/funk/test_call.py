@@ -28,7 +28,7 @@ def test_raises_exception_if_exception_given():
     try:
         call()
         raise AssertionError("Should have thrown RuntimeError")
-    except RuntimeError, e:
+    except RuntimeError as e:
         assert e is error
 
 def test_accepts_returns_true_if_with_args_not_called():

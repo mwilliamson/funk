@@ -1,6 +1,6 @@
 def arguments_str(args, kwargs, separator=", "):
-    args_str = map(str, args)
-    args_str += ['%s=%s' % (key, kwargs[key]) for key in kwargs]
+    args_str = [str(arg) for arg in args] + \
+        ['%s=%s' % (key, kwargs[key]) for key in kwargs]
     return separator.join(args_str)
 
 def function_call_str(name, args, kwargs):

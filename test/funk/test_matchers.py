@@ -26,9 +26,10 @@ def test_any_value_does_not_write_to_mismatch_output():
     assert not mismatch_output
 
 def test_is_a_matches_on_type():
-    assert is_a(type).matches(basestring, [])
-    assert is_a(basestring).matches("foo", [])
-    assert not is_a(basestring).matches(4, [])
+    assert is_a(type).matches(str, [])
+    assert is_a(str).matches("foo", [])
+    assert is_a(object).matches("foo", [])
+    assert not is_a(str).matches(4, [])
 
 def test_is_a_str_shows_type():
     class SomeClass(object):
@@ -37,15 +38,15 @@ def test_is_a_str_shows_type():
 
 def test_is_a_does_not_write_to_mismatch_output_if_it_matches():
     mismatch_output = []
-    assert is_a(type).matches(basestring, mismatch_output)
-    assert is_a(basestring).matches("foo", mismatch_output)
+    assert is_a(type).matches(str, mismatch_output)
+    assert is_a(str).matches("foo", mismatch_output)
     assert not mismatch_output
     
 def test_is_a_writes_type_of_value_if_it_does_not_match():
     class SomeClass(object):
         pass
     mismatch_output = []
-    is_a(basestring).matches(SomeClass(), mismatch_output)
+    is_a(str).matches(SomeClass(), mismatch_output)
     assert_equals(["got <value of type: test.funk.test_matchers.SomeClass>"], mismatch_output)
 
 def test_is_a_does_not_show_module_if_type_is_builtin():
