@@ -11,5 +11,6 @@ setup(
     install_requires=[
         "six>=1.4.1,<2.0",
     ],
+    keywords="mock",
     license='BSD License'
 )
