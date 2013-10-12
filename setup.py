@@ -6,7 +6,7 @@ setup(
     description='A mocking framework for Python',
     author='Michael Williamson',
     author_email='mike@zwobble.org',
-    url='http://gitorious.org/funk',
+    url='http://github.com/mwilliamson/funk',
     packages=['funk'],
     license='BSD License'
 )
