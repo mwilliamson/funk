@@ -1,15 +1,35 @@
-.PHONY: test test-xunit
+.PHONY: test upload clean bootstrap setup
 
 test:
-	nosetests test
+	sh -c '. _virtualenv/bin/activate; nosetests test'
+	
+upload: setup assert-converted-readme
+	python setup.py sdist upload
+	make clean
+	
+register: setup
+	python setup.py register
 
-test-xunit: 
-	mkdir build
-	nosetests --with-xunit --xunit-file=build/nosetests.xml
+README: README.md
+	pandoc --from=markdown --to=rst README.md > README || cp README.md README
+
+assert-converted-readme:
+	test "`cat README`" != "`cat README.md`"
 
 clean:
-	rm -rf build
+	rm -f README
 	rm -f MANIFEST
-	find . -name "*.pyc" -exec rm '{}' ';'
-	cd doc; $(MAKE) clean
+	rm -rf dist
+	
+bootstrap: _virtualenv setup
+	_virtualenv/bin/pip install -e .
+ifneq ($(wildcard test-requirements.txt),) 
+	_virtualenv/bin/pip install -r test-requirements.txt
+endif
+	make clean
 
+setup: README
+
+_virtualenv: 
+	virtualenv _virtualenv
+	_virtualenv/bin/pip install 'distribute>=0.6.45'
