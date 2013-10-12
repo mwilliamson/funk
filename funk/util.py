@@ -1,7 +1,14 @@
+import six
+
+
 def arguments_str(args, kwargs, separator=", "):
-    args_str = [str(arg) for arg in args] + \
-        ['%s=%s' % (key, kwargs[key]) for key in kwargs]
-    return separator.join(args_str)
+    args_strs = [str(arg) for arg in args]
+    
+    sorted_kwargs = sorted(six.iteritems(kwargs), key=lambda x: x[0])
+    kwargs_strs = ['%s=%s' % (key, value) for key, value in sorted_kwargs]
+        
+    all_args_strs = args_strs + kwargs_strs
+    return separator.join(all_args_strs)
 
 def function_call_str(name, args, kwargs):
     return "%s(%s)" % (name, arguments_str(args, kwargs))

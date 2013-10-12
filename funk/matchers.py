@@ -49,7 +49,7 @@ class HasAttr(Matcher):
             self._attributes[key] = self._to_matcher(value)
         
     def matches(self, value, mismatch_output):
-        for key in self._attributes:
+        for key in sorted(six.iterkeys(self._attributes)):
             if not hasattr(value, key):
                 mismatch_output.append("value was missing attribute: %s" % key)
                 return False

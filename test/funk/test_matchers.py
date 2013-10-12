@@ -75,7 +75,7 @@ def test_has_attr_can_use_matchers():
     assert not matcher.matches(Person(42), [])
     
 def test_has_attr_str_contains_all_attributes():
-    assert_equals(str(has_attr(what="else", key="word")), "<value with attributes: what='else', key='word'>")
+    assert_equals(str(has_attr(what="else", key="word")), "<value with attributes: key='word', what='else'>")
 
 def test_has_attr_does_not_write_to_mismatch_output_if_values_match():
     class Rectangle(object):
@@ -94,7 +94,7 @@ def test_has_attr_describes_actual_attributes_if_present():
     mismatch_output = []
     has_attr(width=20, height=40).matches(Rectangle(30, 50), mismatch_output)
     
-    assert_equals(["got <value with attribute: width=30>"], mismatch_output)
+    assert_equals(["got <value with attribute: height=50>"], mismatch_output)
     
 def test_has_attr_will_describe_missing_attributes():
     mismatch_output = []

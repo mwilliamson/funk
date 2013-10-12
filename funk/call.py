@@ -71,7 +71,7 @@ class Call(object):
             
         missing_kwargs = set(self._allowed_kwargs.keys()) - set(kwargs.keys())
         if len(missing_kwargs) > 0:
-            mismatch_description.append("%s [missing keyword arguments: %s]" % (str(self), ", ".join(missing_kwargs)))
+            mismatch_description.append("%s [missing keyword arguments: %s]" % (str(self), ", ".join(sorted(missing_kwargs))))
             return False
             
         extra_kwargs = set(kwargs.keys()) - set(self._allowed_kwargs.keys())
