@@ -2,7 +2,7 @@ from distutils.core import setup
 
 setup(
     name='Funk',
-    version='0.3',
+    version='0.3.1',
     description='A mocking framework for Python',
     author='Michael Williamson',
     author_email='mike@zwobble.org',
