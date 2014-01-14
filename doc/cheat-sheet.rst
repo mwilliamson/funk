@@ -8,8 +8,8 @@ Writing a test using Funk
 
     import funk
 
-    @funk.with_context
-    def test_tag_displayer_writes_all_tag_names_in_alphabetical_order_onto_separate_lines(context):
+    @funk.with_mocks
+    def test_tag_displayer_writes_all_tag_names_in_alphabetical_order_onto_separate_lines(mocks):
         # Create mocks
         # Set up expectations
         # Call code under test

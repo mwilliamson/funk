@@ -9,7 +9,7 @@ from funk.util import function_call_str
 from . import pycompat
 
 
-__all__ = ['with_context', 'Context', 'expects', 'allows', 'set_attr', 'expects_call', 'allows_call']
+__all__ = ['with_mocks', 'Context', 'expects', 'allows', 'set_attr', 'expects_call', 'allows_call']
 
 class UnexpectedInvocationError(AssertionError):
     def __init__(self, mock_name, args, kwargs, expectations):
@@ -104,17 +104,17 @@ class MockedCallsForFunction(object):
         
         raise UnexpectedInvocationError(self._name, args, kwargs, desc)
 
-def with_context(test_function, mock_factory=None):
+def with_mocks(test_function, mock_factory=None):
     @wraps(test_function)
-    def test_function_with_context(*args, **kwargs):
-        if 'context' in kwargs:
-            raise FunkyError("context has already been set")
-        context = Context(mock_factory)
-        kwargs['context'] = context
+    def test_function_with_mocks(*args, **kwargs):
+        if 'mocks' in kwargs:
+            raise FunkyError("mocks has already been set")
+        mocks = Context(mock_factory)
+        kwargs['mocks'] = mocks
         test_function(*args, **kwargs)
-        context.verify()
+        mocks.verify()
     
-    return test_function_with_context
+    return test_function_with_mocks
 
 class MethodArgumentsSetter(object):
     def __init__(self, call):

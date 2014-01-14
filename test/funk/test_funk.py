@@ -12,25 +12,25 @@ from funk.tools import assert_raises_str
 from funk.matchers import Matcher
 from funk import UnexpectedInvocationError
 
-@funk.with_context
-def test_can_set_attributes_on_mock_objects(context):
+@funk.with_mocks
+def test_can_set_attributes_on_mock_objects(mocks):
     name = "the_blues"
-    mock = context.mock()
+    mock = mocks.mock()
     set_attr(mock, name=name)
     
     assert_equals(name, mock.name)
     assert_equals(name, mock.name)
 
-@funk.with_context
-def test_allowing_a_method_without_specifying_arguments_allows_method_to_be_called_no_times(context):
-    mock = context.mock()
+@funk.with_mocks
+def test_allowing_a_method_without_specifying_arguments_allows_method_to_be_called_no_times(mocks):
+    mock = mocks.mock()
     allows(mock).save
 
-@funk.with_context
-def test_allowing_a_method_without_specifying_arguments_allows_method_to_be_called_any_times_with_any_arguments(context):
+@funk.with_mocks
+def test_allowing_a_method_without_specifying_arguments_allows_method_to_be_called_any_times_with_any_arguments(mocks):
     return_value = "foo"
     
-    mock = context.mock()
+    mock = mocks.mock()
     allows(mock).save.returns(return_value)
     
     assert mock.save() is return_value
@@ -38,11 +38,11 @@ def test_allowing_a_method_without_specifying_arguments_allows_method_to_be_call
     assert mock.save() is return_value
     assert mock.save(name="Bob") is return_value
 
-@funk.with_context
-def test_can_specify_no_arguments_when_using_allows(context):
+@funk.with_mocks
+def test_can_specify_no_arguments_when_using_allows(mocks):
     return_value = "foo"
     
-    mock = context.mock()
+    mock = mocks.mock()
     allows(mock).save.with_args().returns(return_value)
     
     assert mock.save() is return_value
@@ -51,11 +51,11 @@ def test_can_specify_no_arguments_when_using_allows(context):
     assert_raises(UnexpectedInvocationError, lambda: mock.save("one", "two", key="word", foo="bar"))
     assert mock.save() is return_value
 
-@funk.with_context
-def test_can_specify_arguments_using_equality_on_instances_when_using_allows(context):
+@funk.with_mocks
+def test_can_specify_arguments_using_equality_on_instances_when_using_allows(mocks):
     return_value = "foo"
     
-    mock = context.mock()
+    mock = mocks.mock()
     allows(mock).save.with_args("one", "two", key="word", foo="bar").returns(return_value)
     
     assert mock.save("one", "two", key="word", foo="bar") is return_value
@@ -64,12 +64,12 @@ def test_can_specify_arguments_using_equality_on_instances_when_using_allows(con
     assert_raises(UnexpectedInvocationError, lambda: mock.save(key="word"))
     assert mock.save("one", "two", key="word", foo="bar") is return_value
 
-@funk.with_context
-def test_same_method_can_return_different_values_for_different_arguments_using_allows(context):
+@funk.with_mocks
+def test_same_method_can_return_different_values_for_different_arguments_using_allows(mocks):
     return_foo = "foo"
     return_bar = "bar"
     
-    mock = context.mock()
+    mock = mocks.mock()
     allows(mock).save.with_args("one", "two", key="word", foo="bar").returns(return_foo)
     allows(mock).save.with_args("positional").returns(return_bar)
     
@@ -79,21 +79,21 @@ def test_same_method_can_return_different_values_for_different_arguments_using_a
     assert_raises(UnexpectedInvocationError, lambda: mock.save(key="word"))
     assert mock.save("one", "two", key="word", foo="bar") is return_foo
     
-@funk.with_context
-def test_unexpected_invocation_is_raised_if_method_is_defined_on_base_class(context):
+@funk.with_mocks
+def test_unexpected_invocation_is_raised_if_method_is_defined_on_base_class(mocks):
     class UserRepository(object):
         def fetch_all(self):
             pass
-    mock = context.mock(UserRepository)
+    mock = mocks.mock(UserRepository)
     
     assert_raises(UnexpectedInvocationError, lambda: mock.fetch_all())
     
-@funk.with_context
-def test_no_expectations_listed_if_none_set(context):
+@funk.with_mocks
+def test_no_expectations_listed_if_none_set(mocks):
     class UserRepository(object):
         def fetch_all(self):
             pass
-    mock = context.mock(UserRepository)
+    mock = mocks.mock(UserRepository)
     
     assert_raises_str(UnexpectedInvocationError,
 """Unexpected invocation: user_repository.fetch_all()
@@ -101,10 +101,10 @@ The following expectations on user_repository.fetch_all did not match:
     No expectations set.""",
                       lambda: mock.fetch_all())
 
-@funk.with_context
-def test_name_of_mock_is_used_in_exceptions_and_expectations_on_that_method_are_shown(context):
-    unnamed = context.mock()
-    named = context.mock(name='database')
+@funk.with_mocks
+def test_name_of_mock_is_used_in_exceptions_and_expectations_on_that_method_are_shown(mocks):
+    unnamed = mocks.mock()
+    named = mocks.mock(name='database')
     allows(unnamed).save.with_args("positional")
     allows(named).save.with_args("positional")
     
@@ -119,13 +119,13 @@ The following expectations on database.save did not match:
     database.save('positional') [wrong number of positional arguments]""",
                       lambda: named.save())
     
-@funk.with_context
-def test_unexpected_invocations_display_method_name_and_parameters(context):
+@funk.with_mocks
+def test_unexpected_invocations_display_method_name_and_parameters(mocks):
     class Database(object):
         def save(self):
             pass
             
-    mock = context.mock(Database)
+    mock = mocks.mock(Database)
     allows(mock).save.with_args()
     
     assert_raises_str(UnexpectedInvocationError,
@@ -144,7 +144,7 @@ The following expectations on database.save did not match:
     database.save() [wrong number of positional arguments]""",
                       lambda: mock.save("one", "two", key="word", foo="bar"))
     
-    mock = context.mock(Database)
+    mock = mocks.mock(Database)
     allows(mock).save.with_args(1)
     
     assert_raises_str(UnexpectedInvocationError,
@@ -153,9 +153,9 @@ The following expectations on database.save did not match:
     database.save(1) [wrong number of positional arguments]""",
                       lambda: mock.save())
 
-@funk.with_context
-def test_argument_mismatches_are_show_on_separate_lines(context):
-    mock = context.mock(name="database")
+@funk.with_mocks
+def test_argument_mismatches_are_show_on_separate_lines(mocks):
+    mock = mocks.mock(name="database")
     allows(mock).save("Apples", "Bananas")
     
     assert_raises_str(UnexpectedInvocationError,
@@ -165,12 +165,12 @@ The following expectations on database.save did not match:
                   'Bananas' [got 'Peaches'])""",
                       lambda: mock.save("Apples", "Peaches"))
 
-@funk.with_context
-def test_if_name_is_not_provided_type_is_converted_to_name_if_supplied(context):
+@funk.with_mocks
+def test_if_name_is_not_provided_type_is_converted_to_name_if_supplied(mocks):
     class UserRepository(object):
         def fetch_all(self):
             pass
-    mock = context.mock(UserRepository)
+    mock = mocks.mock(UserRepository)
     allows(mock).fetch_all()
     assert_raises_str(UnexpectedInvocationError,
 """Unexpected invocation: user_repository.fetch_all(2)
@@ -178,29 +178,29 @@ The following expectations on user_repository.fetch_all did not match:
     user_repository.fetch_all() [wrong number of positional arguments]""",
                       lambda: mock.fetch_all(2))
 
-@funk.with_context
-def test_expected_methods_can_be_called_once_with_any_arguments_if_no_arguments_specified(context):
+@funk.with_mocks
+def test_expected_methods_can_be_called_once_with_any_arguments_if_no_arguments_specified(mocks):
     return_value = "Oh my!"
-    mock = context.mock()
+    mock = mocks.mock()
     expects(mock).save.returns(return_value)
     
     assert mock.save("positional", key="word") is return_value
 
-@funk.with_context
-def test_expected_methods_cannot_be_called_more_than_once(context):
-    mock = context.mock()
+@funk.with_mocks
+def test_expected_methods_cannot_be_called_more_than_once(mocks):
+    mock = mocks.mock()
     expects(mock).save.returns("Oh my!")
     
     mock.save("positional", key="word")
     
     assert_raises(UnexpectedInvocationError, lambda: mock.save("positional", key="word"))
 
-@funk.with_context
-def test_expected_methods_can_be_called_in_any_order(context):
+@funk.with_mocks
+def test_expected_methods_can_be_called_in_any_order(mocks):
     return_no_args = "Alone!"
     return_positional = "One is the loneliest number"
     
-    mock = context.mock()
+    mock = mocks.mock()
     expects(mock).save.with_args().returns(return_no_args)
     expects(mock).save.with_args("positional").returns(return_positional)
     
@@ -210,17 +210,17 @@ def test_expected_methods_can_be_called_in_any_order(context):
     assert_raises(UnexpectedInvocationError, lambda: mock.save("positional"))
     assert_raises(UnexpectedInvocationError, lambda: mock.save())
 
-@funk.with_context
-def test_mocks_can_raise_exceptions(context):
-    mock = context.mock()
+@funk.with_mocks
+def test_mocks_can_raise_exceptions(mocks):
+    mock = mocks.mock()
     expects(mock).save.raises(RuntimeError("Oh noes!"))
     assert_raises(RuntimeError, lambda: mock.save("anything"))
 
-@funk.with_context
-def test_method_expectations_are_used_in_the_order_they_are_defined(context):
+@funk.with_mocks
+def test_method_expectations_are_used_in_the_order_they_are_defined(mocks):
     first = "One is the loneliest number"
     second = "Two can be as bad as one"
-    mock = context.mock()
+    mock = mocks.mock()
     expects(mock).save.returns(first)
     expects(mock).save.returns(second)
     
@@ -228,47 +228,47 @@ def test_method_expectations_are_used_in_the_order_they_are_defined(context):
     assert mock.save() is second
     
 def test_function_raises_exception_if_expectations_are_not_satisfied():
-    @funk.with_context
-    def function(context):
-        mock = context.mock()
+    @funk.with_mocks
+    def function(mocks):
+        mock = mocks.mock()
         expects(mock).save
         
     assert_raises_str(AssertionError,
                       "Not all expectations were satisfied. Expected call: unnamed.save",
                       function)
 def test_method_arguments_described_when_not_all_expectations_are_satisfied():
-    @funk.with_context
-    def function(context):
-        mock = context.mock()
+    @funk.with_mocks
+    def function(mocks):
+        mock = mocks.mock()
         expects(mock).save.with_args("positional", key="word")
         
     assert_raises_str(AssertionError,
                       "Not all expectations were satisfied. Expected call: unnamed.save('positional', key='word')",
                       function)
 
-@funk.with_context
-def test_mocks_can_expect_calls(context):
+@funk.with_mocks
+def test_mocks_can_expect_calls(mocks):
     return_value = "Hello!"
-    mock = context.mock(name='save')
+    mock = mocks.mock(name='save')
     assert_raises(UnexpectedInvocationError, mock)
     expects_call(mock).returns(return_value)
     assert mock() is return_value
     assert_raises(UnexpectedInvocationError, mock)
     assert_raises(UnexpectedInvocationError, lambda: mock("positional", key="word"))
     
-@funk.with_context
-def test_mocks_can_expect_calls_with_args(context):
+@funk.with_mocks
+def test_mocks_can_expect_calls_with_args(mocks):
     return_value = "Hello!"
-    mock = context.mock(name='save')
+    mock = mocks.mock(name='save')
     expects_call(mock).with_args("positional").returns(return_value)
     assert_raises(UnexpectedInvocationError, mock)
     assert_raises(UnexpectedInvocationError, lambda: mock("positional", key="word"))
     assert mock("positional") is return_value
 
-@funk.with_context
-def test_unexpected_calls_on_mocks_display_mock_name_and_parameters(context):
+@funk.with_mocks
+def test_unexpected_calls_on_mocks_display_mock_name_and_parameters(mocks):
     return_value = "Hello!"
-    mock = context.mock(name='save')
+    mock = mocks.mock(name='save')
     assert_raises_str(UnexpectedInvocationError,
 """Unexpected invocation: save()
 The following expectations on save did not match:
@@ -288,9 +288,9 @@ The following expectations on save did not match:
                       lambda: mock("positional", key="word"))
     
 def test_function_raises_exception_if_expectations_of_calls_on_mock_are_not_satisfied():
-    @funk.with_context
-    def function(context):
-        mock = context.mock()
+    @funk.with_mocks
+    def function(mocks):
+        mock = mocks.mock()
         expects_call(mock)
         
     assert_raises_str(AssertionError,
@@ -298,28 +298,28 @@ def test_function_raises_exception_if_expectations_of_calls_on_mock_are_not_sati
                       function)
 
 def test_function_arguments_described_when_not_all_expectations_are_satisfied():
-    @funk.with_context
-    def function(context):
-        mock = context.mock()
+    @funk.with_mocks
+    def function(mocks):
+        mock = mocks.mock()
         expects_call(mock).with_args("positional", key="word")
         
     assert_raises_str(AssertionError,
                       "Not all expectations were satisfied. Expected call: unnamed('positional', key='word')",
                       function)
     
-@funk.with_context
-def test_mocks_can_allow_calls(context):
+@funk.with_mocks
+def test_mocks_can_allow_calls(mocks):
     return_value = "Hello!"
-    mock = context.mock(name='save')
+    mock = mocks.mock(name='save')
     allows_call(mock).returns(return_value)
     assert mock() is return_value
     assert mock() is return_value
     mock("positional", key="word") is return_value
 
-@funk.with_context
-def test_mocks_can_allow_calls_with_args(context):
+@funk.with_mocks
+def test_mocks_can_allow_calls_with_args(mocks):
     return_value = "Hello!"
-    mock = context.mock(name='save')
+    mock = mocks.mock(name='save')
     allows_call(mock).with_args("positional").returns(return_value)
     
     assert mock("positional") is return_value
@@ -327,71 +327,71 @@ def test_mocks_can_allow_calls_with_args(context):
     assert_raises(UnexpectedInvocationError, mock)
     assert_raises(UnexpectedInvocationError, lambda: mock("positional", key="word"))
 
-@funk.with_context
-def test_can_use_expects_to_expect_call_with_the_same_syntax_that_it_will_be_called_with(context):
+@funk.with_mocks
+def test_can_use_expects_to_expect_call_with_the_same_syntax_that_it_will_be_called_with(mocks):
     to_save = "Let's go!"
     return_value = "Yippee!"
-    database = context.mock()
+    database = mocks.mock()
     expects(database).save(to_save).returns(return_value)
     assert_raises(UnexpectedInvocationError, lambda: database.save())
     assert database.save(to_save) is return_value
     assert_raises(UnexpectedInvocationError, lambda: database.save(to_save))
 
-@funk.with_context
-def test_can_use_allows_to_allow_call_with_the_same_syntax_that_it_will_be_called_with(context):
+@funk.with_mocks
+def test_can_use_allows_to_allow_call_with_the_same_syntax_that_it_will_be_called_with(mocks):
     to_save = "Let's go!"
     return_value = "Yippee!"
-    database = context.mock()
+    database = mocks.mock()
     allows(database).save(to_save).returns(return_value)
     assert_raises(UnexpectedInvocationError, lambda: database.save())
     assert database.save(to_save) is return_value
     assert database.save(to_save) is return_value
 
-@funk.with_context
-def test_can_expect_call_without_specifying_arguments_with_the_same_syntax_that_it_will_be_called_with(context):
+@funk.with_mocks
+def test_can_expect_call_without_specifying_arguments_with_the_same_syntax_that_it_will_be_called_with(mocks):
     to_save = "Let's go!"
     return_value = "Yippee!"
-    database = context.mock()
+    database = mocks.mock()
     expects(database).save.returns(return_value)
     assert database.save(to_save) is return_value
     assert_raises(UnexpectedInvocationError, lambda: database.save(to_save))
     
-@funk.with_context
-def test_can_allow_call_without_specifying_arguments_with_the_same_syntax_that_it_will_be_called_with(context):
+@funk.with_mocks
+def test_can_allow_call_without_specifying_arguments_with_the_same_syntax_that_it_will_be_called_with(mocks):
     to_save = "Let's go!"
     return_value = "Yippee!"
-    database = context.mock()
+    database = mocks.mock()
     allows(database).save.returns(return_value)
     assert database.save(to_save) is return_value
     assert database.save(to_save) is return_value
     assert database.save() is return_value
 
-@funk.with_context
-def test_can_expect_calls_with_the_same_syntax_that_it_will_be_called_with(context):
+@funk.with_mocks
+def test_can_expect_calls_with_the_same_syntax_that_it_will_be_called_with(mocks):
     to_print = "Hello, hello, hello, what's going on here then?"
     to_return = "There are four lights!"
-    printer = context.mock()
+    printer = mocks.mock()
     
     expects_call(printer)(to_print).returns(to_return)
     
     assert printer(to_print) is to_return
     
-@funk.with_context
-def test_can_allow_calls_with_the_same_syntax_that_it_will_be_called_with(context):
+@funk.with_mocks
+def test_can_allow_calls_with_the_same_syntax_that_it_will_be_called_with(mocks):
     to_print = "Hello, hello, hello, what's going on here then?"
     to_return = "There are four lights!"
-    printer = context.mock()
+    printer = mocks.mock()
     
     allows_call(printer)(to_print).returns(to_return)
     
     assert printer(to_print) is to_return
 
-@funk.with_context
-def test_sequences_do_not_raise_assertions_when_called_in_correct_order(context):
-    log = context.mock()
+@funk.with_mocks
+def test_sequences_do_not_raise_assertions_when_called_in_correct_order(mocks):
+    log = mocks.mock()
     
-    first_ordering = context.sequence()
-    second_ordering = context.sequence()
+    first_ordering = mocks.sequence()
+    second_ordering = mocks.sequence()
     
     expects(log).write("You and your friend").in_sequence(first_ordering)
     expects(log).write("Love Over Gold").in_sequence(second_ordering)
@@ -409,10 +409,10 @@ def test_sequences_do_not_raise_assertions_when_called_in_correct_order(context)
     log.close()
 
 def test_assertion_fails_if_calls_do_not_follow_sequence():
-    @funk.with_context
-    def test_function(context):
-        file = context.mock(name="file")
-        ordering = context.sequence()
+    @funk.with_mocks
+    def test_function(mocks):
+        file = mocks.mock(name="file")
+        ordering = mocks.sequence()
         expects(file).write("Private investigations").in_sequence(ordering)
         expects(file).close().in_sequence(ordering)
         
@@ -423,19 +423,19 @@ def test_assertion_fails_if_calls_do_not_follow_sequence():
                       "Invocation out of order. Expected file.write('Private investigations'), but got file.close().",
                       test_function)
 
-@funk.with_context
-def test_using_allows_in_a_sequence_allows_it_to_be_called_no_times(context):
-    file = context.mock()
-    ordering = context.sequence()
+@funk.with_mocks
+def test_using_allows_in_a_sequence_allows_it_to_be_called_no_times(mocks):
+    file = mocks.mock()
+    ordering = mocks.sequence()
     allows(file).write.in_sequence(ordering)
     expects(file).close().in_sequence(ordering)
     
     file.close()
 
-@funk.with_context
-def test_using_allows_in_a_sequence_allows_it_to_be_called_many_times(context):
-    file = context.mock()
-    ordering = context.sequence()
+@funk.with_mocks
+def test_using_allows_in_a_sequence_allows_it_to_be_called_many_times(mocks):
+    file = mocks.mock()
+    ordering = mocks.sequence()
     allows(file).write.in_sequence(ordering)
     expects(file).close().in_sequence(ordering)
     
@@ -444,10 +444,10 @@ def test_using_allows_in_a_sequence_allows_it_to_be_called_many_times(context):
     file.write("Baz")
     file.close()
     
-@funk.with_context
-def test_calling_allowed_call_in_wrong_place_raises_assertion_error(context):
-    file = context.mock()
-    ordering = context.sequence()
+@funk.with_mocks
+def test_calling_allowed_call_in_wrong_place_raises_assertion_error(mocks):
+    file = mocks.mock()
+    ordering = mocks.sequence()
     allows(file).write.in_sequence(ordering)
     expects(file).close().in_sequence(ordering)
     
@@ -456,21 +456,21 @@ def test_calling_allowed_call_in_wrong_place_raises_assertion_error(context):
                       'Invocation out of order. Expected no more calls in sequence, but got unnamed.write.',
                       lambda: file.write("Bar"))
 
-@funk.with_context
-def test_if_mock_is_based_on_a_class_then_can_only_expect_methods_defined_on_that_class(context):
+@funk.with_mocks
+def test_if_mock_is_based_on_a_class_then_can_only_expect_methods_defined_on_that_class(mocks):
     class Database(object):
         def save(self):
             pass
             
         status = False
     
-    database = context.mock(Database)
+    database = mocks.mock(Database)
     allows(database).save
     assert_raises_str(AssertionError, "Method 'delete' is not defined on type object 'Database'", lambda: allows(database).delete)
     assert_raises_str(AssertionError, "Attribute 'status' is not callable on type object 'Database'", lambda: allows(database).status)
 
-@funk.with_context
-def test_if_mock_is_based_on_a_class_then_can_also_expect_methods_defined_on_superclass(context):
+@funk.with_mocks
+def test_if_mock_is_based_on_a_class_then_can_also_expect_methods_defined_on_superclass(mocks):
     class Database(object):
         def save(self):
             pass
@@ -479,18 +479,18 @@ def test_if_mock_is_based_on_a_class_then_can_also_expect_methods_defined_on_sup
         def delete(self):
             pass
     
-    database = context.mock(DeletingDatabase)
+    database = mocks.mock(DeletingDatabase)
     allows(database).save
     allows(database).delete
 
-@funk.with_context
-def test_can_use_matchers_instead_of_values_for_positional_arguments(context):
+@funk.with_mocks
+def test_can_use_matchers_instead_of_values_for_positional_arguments(mocks):
     class BlahMatcher(Matcher):
         def matches(self, other, failure_output):
             return other == "Blah"
             
     return_value = "Whoopee!"
-    mock = context.mock()
+    mock = mocks.mock()
     expects(mock).save.with_args(BlahMatcher()).returns(return_value)
     
     assert_raises(UnexpectedInvocationError, lambda: mock.save())
@@ -500,14 +500,14 @@ def test_can_use_matchers_instead_of_values_for_positional_arguments(context):
     
     assert mock.save("Blah") is return_value
     
-@funk.with_context
-def test_can_use_matchers_instead_of_values_for_keyword_arguments(context):
+@funk.with_mocks
+def test_can_use_matchers_instead_of_values_for_keyword_arguments(mocks):
     class BlahMatcher(Matcher):
         def matches(self, other, failure_output):
             return other == "Blah"
             
     return_value = "Whoopee!"
-    mock = context.mock()
+    mock = mocks.mock()
     expects(mock).save.with_args(value=BlahMatcher()).returns(return_value)
     
     assert_raises(UnexpectedInvocationError, lambda: mock.save())
@@ -517,16 +517,16 @@ def test_can_use_matchers_instead_of_values_for_keyword_arguments(context):
     
     assert mock.save(value="Blah") is return_value
 
-def test_calling_function_wrapped_in_with_context_raises_exception_if_context_already_set():
-    @funk.with_context
-    def some_function(context):
+def test_calling_function_wrapped_in_with_mocks_raises_exception_if_mocks_already_set():
+    @funk.with_mocks
+    def some_function(mocks):
         pass
         
-    assert_raises(FunkyError, lambda: some_function(context=None))
+    assert_raises(FunkyError, lambda: some_function(mocks=None))
 
-@funk.with_context
-def test_can_mock_methods_used_internally_by_mock(context):
-    mock = context.mock()
+@funk.with_mocks
+def test_can_mock_methods_used_internally_by_mock(mocks):
+    mock = mocks.mock()
     
     expects(mock)._mocked_calls
     expects(mock).save()
@@ -543,6 +543,6 @@ def test_can_mock_methods_used_internally_by_mock(context):
         def _base(self):
             pass
     
-    based_mock = context.mock(UserRepository)
+    based_mock = mocks.mock(UserRepository)
     allows(based_mock)._base
     
