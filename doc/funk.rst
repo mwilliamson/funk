@@ -3,29 +3,29 @@
 
 .. module:: funk
 
-.. function:: with_context
+.. function:: with_mocks
 
-    A decorator for test methods. Supplies an instance of :class:`~funk.Context`
-    as the keyword argument *context*::
+    A decorator for test methods. Supplies an instance of :class:`~funk.Mocks`
+    as the keyword argument *mocks*::
     
-        @with_context
-        def test_some_function(context):
-            # context is an instance of Context
-            some_mock = context.mock()
+        @with_mocks
+        def test_some_function(mocks):
+            # mocks is an instance of Mocks
+            some_mock = mocks.mock()
             ...
             
-    At the end of test, ``context.verify()`` will be called, so there is no
+    At the end of test, ``mocks.verify()`` will be called, so there is no
     need to call it yourself.
 
-.. class:: Context
+.. class:: Mocks
 
     .. method:: __init__
     
-        Create a new context, with no expectations set up.
+        Create a new mocks, with no expectations set up.
         
     .. method:: mock
     
-        Create a new :class:`~funk.Mock` tied to this context.
+        Create a new :class:`~funk.Mock` tied to this mocks.
         
     .. method:: sequence
     
@@ -33,7 +33,7 @@
         
     .. method:: verify
     
-        Verifies that all mocks created with this context have had their
+        Verifies that all mocks created with this mocks have had their
         expectations satisified. If this is not the case, an :class:`AssertionError`
         will be raised.
         
@@ -42,7 +42,7 @@
     When a method is called, the first mocked call that will accept the given
     arguments is used. For instance::
     
-        database = context.mock()
+        database = mocks.mock()
         expects(database).save("positional").returns(return_one)
         expects(database).save(key="word").returns(return_two)
         
@@ -52,7 +52,7 @@
     Some calls can only be called a specified number of times -- specifically,
     :func:`~funk.expects` allows exactly one call. For instance::
     
-        database = context.mock()
+        database = mocks.mock()
         expects(database).save().returns(return_one)
         allows(database.save().returns(return_two)
         
@@ -70,7 +70,7 @@
 
     Sets attributes on the mocked object. For instance::
     
-        mock = context.mock()
+        mock = mocks.mock()
         set_attr(mock, key='word', something='else')
         assert mock.key == 'word'
         assert mock.something == 'else'
@@ -81,7 +81,7 @@
     called, an :class:`AssertionError` is raised. For instance, to expect
     a method called save::
     
-        database = context.mock()
+        database = mocks.mock()
         expects(database).save
     
     By default, this expectation will allow any arguments. Expected arguments 
@@ -104,7 +104,7 @@
     Allows an expected call to be configured. By default, the call will accept
     any parameters, and will return :const:`None`. That is::
     
-        database = context.mock()
+        database = mocks.mock()
         allows(database).save
         
         assert database.save() is None
@@ -115,14 +115,14 @@
     
         Allow this call to only accept the given arguments. For instance::
         
-            database = context.mock()
+            database = mocks.mock()
             allows(database).save.with_args('positional', key='word').returns(return_value)
             assert database.save('positional', key='word') is return_value
             database.save() # Raises AssertionError
         
         Note that this is completely equivalent to::
         
-            database = context.mock()
+            database = mocks.mock()
             allows(database).save('positional', key='word').returns(return_value)
             assert database.save('positional', key='word') is return_value
             database.save() # Raises AssertionError
@@ -133,7 +133,7 @@
             
             ...
         
-            calculator = context.mock()
+            calculator = mocks.mock()
             allows(calculator).add(is_a(int), is_a(int)).returns(return_value)
             assert calculator.add(4, 9) is return_value
     
@@ -145,7 +145,7 @@
     
         Causes this call to return *value*::
         
-            database = context.mock()
+            database = mocks.mock()
             allows(database).save.returns(return_value)
             
             assert database.save() is return_value
@@ -153,7 +153,7 @@
             
         The same method can return different values. For instance::
         
-            database = context.mock()
+            database = mocks.mock()
             expects(database).save.returns(return_one)
             expects(database).save.returns(return_two)
             
@@ -166,8 +166,8 @@
         This allows ordering of method calls to be specified. For instance, say
         we want to close a file after writing to it. We can write the test like so::
 
-            file_ = context.mock(file)
-            file_ordering = context.sequence()
+            file_ = mocks.mock(file)
+            file_ordering = mocks.sequence()
 
             expects(file_).write("Eggs").in_sequence(file_ordering)
             expects(file_).close().in_sequence(file_ordering)

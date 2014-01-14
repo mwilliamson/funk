@@ -21,9 +21,9 @@ For instance::
     import funk
     from funk import expects
 
-    @funk.with_context
-    def test_tag_displayer_writes_all_tag_names_in_alphabetical_order_onto_separate_lines(context):
-        tag_repository = context.mock(TagRepository)
+    @funk.with_mocks
+    def test_tag_displayer_writes_all_tag_names_in_alphabetical_order_onto_separate_lines(mocks):
+        tag_repository = mocks.mock(TagRepository)
         expects(tag_repository).fetch_all(sorted=False).returns([Tag('python'), Tag('debian')])
         
         tag_displayer = TagDisplayer(tag_repository)
@@ -35,10 +35,10 @@ Creating mock objects
 ::
 
     # Only methods defined on TagRepository can be mocked
-    tag_repository = context.mock(TagRepository)
+    tag_repository = mocks.mock(TagRepository)
     
     # Without a base class, any method can be mocked
-    database = context.mock(name="database")
+    database = mocks.mock(name="database")
         
 Setting expectations
 --------------------
@@ -114,12 +114,12 @@ Actions
 Sequences
 ---------
 
-A sequence object can be created using :meth:`~funk.Context.sequence`.
+A sequence object can be created using :meth:`~funk.Mocks.sequence`.
 The sequencing on objects can then be defined using :meth:`~funk.call.Call.in_sequence`.
 For instance, to ensure a file is written to before it is closed::
 
-    file_ = context.mock(file)
-    file_ordering = context.sequence()
+    file_ = mocks.mock(file)
+    file_ordering = mocks.sequence()
 
     expects(file_).write("Eggs").in_sequence(file_ordering)
     expects(file_).close().in_sequence(file_ordering)

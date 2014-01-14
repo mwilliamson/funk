@@ -21,17 +21,17 @@ testing frameworks should work just fine)::
     import funk
     from funk import expects
 
-    @funk.with_context
-    def test_tag_displayer_writes_all_tag_names_in_alphabetical_order_onto_separate_lines(context):
-        tag_repository = context.mock(TagRepository)
+    @funk.with_mocks
+    def test_tag_displayer_writes_all_tag_names_in_alphabetical_order_onto_separate_lines(mocks):
+        tag_repository = mocks.mock(TagRepository)
         expects(tag_repository).fetch_all(sorted=False).returns([Tag('python'), Tag('debian')])
         
         tag_displayer = TagDisplayer(tag_repository)
         assert_equals(tag_displayer.display_all(), 'debian\npython')
 
-Note the that test method takes a context as an argument.
-If necessary, you can build you own instances by calling :class:`funk.Context`.
-This is the object that allows you to create mocks, by calling :func:`~funk.Context.mock`.
+Note the that test method takes a mocks as an argument.
+If necessary, you can build you own instances by calling :class:`funk.Mocks`.
+This is the object that allows you to create mocks, by calling :func:`~funk.Mocks.mock`.
 
 It's probably worth deconstructing the expectation setup here. We start with
 the simpler expectation::
@@ -102,7 +102,7 @@ we call :func:`delete` on a tag, it should return :const:`True` to indicate a
 successful deletion. On any subsequent calls, it should return :const:`False`
 since the tag has already been deleted. For instance::
 
-    database = context.mock('database')
+    database = mocks.mock('database')
     expects(database).delete(tag).returns(True)
     allows(database).delete(tag).returns(False)
     
@@ -120,7 +120,7 @@ be matched any number of times.
 We might also decide to set up another expectation so that deleting any other
 tag returns :const:`False`::
 
-    database = context.mock('database')
+    database = mocks.mock('database')
     expects(database).delete(tag).returns(True)
     allows(database).delete(tag).returns(False)
     allows(database).delete.returns(False)
@@ -140,7 +140,7 @@ any arguments. To solve this problem, we can use a matcher like so::
     from funk.matcher import is_a
     ...
     
-    database = context.mock('database')
+    database = mocks.mock('database')
     expects(database).delete(tag).returns(True)
     allows(database).delete(tag).returns(False)
     allows(database).delete(is_a(Tag)).returns(False)
@@ -156,7 +156,7 @@ any arguments. To solve this problem, we can use a matcher like so::
 Note that we define the generic expectation after the other expectations. If
 we'd written the test like so::
 
-    database = context.mock('database')
+    database = mocks.mock('database')
     allows(database).delete(is_a(Tag)).returns(False)
     expects(database).delete(tag).returns(True)
     allows(database).delete(tag).returns(False)
@@ -171,12 +171,12 @@ Using our earlier example, we had a :class:`TagRepository`. It had a method
 :func:`fetch_all` that we expected to be called, so we set up the test like so::
 
     from nose.tools import assert_equals
-    from funk import with_context
+    from funk import with_mocks
     from funk import expects
 
-    @with_context
-    def test_tag_displayer_writes_all_tag_names_onto_separate_lines(context):
-        tag_repository = context.mock(name='tag_repository')
+    @with_mocks
+    def test_tag_displayer_writes_all_tag_names_onto_separate_lines(mocks):
+        tag_repository = mocks.mock(name='tag_repository')
         expects(tag_repository).fetch_all(sorted=False).returns([Tag('python'), Tag('debian')])
         
         tag_displayer = TagDisplayer(tag_repository)
@@ -187,7 +187,7 @@ this unit test will still pass without changing the :class:`TagDisplayer` since
 we're still mocking a method called :func:`fetch_all`. To help in this situation,
 you can pass in a base class for mocks::
 
-    tag_repository = context.mock(TagRepository, name='tag_repository')
+    tag_repository = mocks.mock(TagRepository, name='tag_repository')
 
 Now, Funk will only allow you to expect and allow methods that are defined on
 :class:`TagRepository`. Running the test as is causes an :class:`AssertionError`
