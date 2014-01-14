@@ -1,6 +1,6 @@
-import six
+from . import pycompat
+from .util import arguments_str
 
-from funk.util import arguments_str
 
 __all__ = ['any_value', 'is_a', 'has_attr', 'equal_to', 'not_', 'all_of',
            'any_of', 'is_', 'contains_exactly']
@@ -33,7 +33,7 @@ class IsA(Matcher):
         
     def _describe(self, value_type):
         module = value_type.__module__
-        if (six.PY2 and module == "__builtin__") or (six.PY3 and module == "builtins"):
+        if module == pycompat.builtin_module_name:
             module_prefix = ''
         else:
             module_prefix = '%s.' % value_type.__module__
@@ -45,11 +45,11 @@ def is_a(type_):
 class HasAttr(Matcher):
     def __init__(self, attributes):
         self._attributes = {}
-        for key, value in six.iteritems(attributes):
+        for key, value in pycompat.iteritems(attributes):
             self._attributes[key] = self._to_matcher(value)
         
     def matches(self, value, mismatch_output):
-        for key in sorted(six.iterkeys(self._attributes)):
+        for key in sorted(pycompat.iterkeys(self._attributes)):
             if not hasattr(value, key):
                 mismatch_output.append("value was missing attribute: %s" % key)
                 return False

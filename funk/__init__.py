@@ -1,13 +1,13 @@
 from functools import wraps
 
-import six
-
 from funk.error import FunkyError
 from funk.call import Call
 from funk.call import IntegerCallCount
 from funk.call import InfiniteCallCount
 from funk.sequence import Sequence
 from funk.util import function_call_str
+from . import pycompat
+
 
 __all__ = ['with_context', 'Context', 'expects', 'allows', 'set_attr', 'expects_call', 'allows_call']
 
@@ -15,7 +15,7 @@ class UnexpectedInvocationError(AssertionError):
     def __init__(self, mock_name, args, kwargs, expectations):
         args_str = map(repr, args)
         kwargs_str = {}
-        for key, value in six.iteritems(kwargs):
+        for key, value in pycompat.iteritems(kwargs):
             kwargs_str[key] = repr(value)
         call_str = function_call_str(mock_name, args_str, kwargs_str)
         exception_str = ["Unexpected invocation: %s" % call_str]
