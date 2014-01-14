@@ -9,7 +9,7 @@ from funk.util import function_call_str
 from . import pycompat
 
 
-__all__ = ['with_mocks', 'Context', 'expects', 'allows', 'set_attr', 'expects_call', 'allows_call']
+__all__ = ['with_mocks', 'Mocks', 'expects', 'allows', 'set_attr', 'expects_call', 'allows_call']
 
 class UnexpectedInvocationError(AssertionError):
     def __init__(self, mock_name, args, kwargs, expectations):
@@ -109,7 +109,7 @@ def with_mocks(test_function, mock_factory=None):
     def test_function_with_mocks(*args, **kwargs):
         if 'mocks' in kwargs:
             raise FunkyError("mocks has already been set")
-        mocks = Context(mock_factory)
+        mocks = Mocks(mock_factory)
         kwargs['mocks'] = mocks
         test_function(*args, **kwargs)
         mocks.verify()
@@ -154,7 +154,7 @@ def expects_call(mock):
 def allows_call(mock):
     return MethodArgumentsSetter(object.__getattribute__(mock, "_mocked_calls").add_function_call(InfiniteCallCount()))
 
-class Context(object):
+class Mocks(object):
     def __init__(self, mock_factory=None):
         if mock_factory is None:
             mock_factory = Mock
