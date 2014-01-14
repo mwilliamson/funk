@@ -1,3 +1,8 @@
+Funk 0.4, 2013-01-14
+
+  * Rename funk.with_context to funk.with_mocks,
+    and have it supply a "mocks" keyword argument rather than "context"
+
 Funk 0.3, 2010-09-21
 
   * Adding sequence objects to allow the ordering of method calls on mock objects
