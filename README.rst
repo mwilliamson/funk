@@ -1,7 +1,7 @@
 Funk: A mocking framework for Python
 ====================================
 
-Funk is a mocking framework for Python, influenced heavily by [JMock](http://www.jmock.org/).
+Funk is a mocking framework for Python, influenced heavily by `JMock <http://www.jmock.org/>`_.
 Funk helps to test modules in isolation by allowing mock objects to be used in place of "real" objects.
 Funk is licensed under the 2-clause BSD licence.
 
