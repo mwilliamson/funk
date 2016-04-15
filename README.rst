@@ -32,9 +32,9 @@ and write their names into a string separated by new lines.
     import funk
     from funk import expects
 
-    @funk.with_context
-    def test_writes_all_tag_names_onto_separate_lines(context):
-        tag_repository = context.mock(TagRepository)
+    @funk.with_mocks
+    def test_writes_all_tag_names_onto_separate_lines(mocks):
+        tag_repository = mocks.mock(TagRepository)
         
         expects(tag_repository).fetch_all(sorted=False)
             .returns([Tag('python'), Tag('debian')])
