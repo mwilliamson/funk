@@ -15,33 +15,50 @@ Installation
 Example
 -------
 
-Let's say we have a ``TagRepository`` class,
-which has a ``fetch_all`` method on it.
-This method will fetch all instances of ``Tag`` from the database for us.
-
-We also have a class that we'd like to test, called ``TagDisplayer``.
-Its constructor takes a ``TagRepository``,
-and has a method ``display_all``.
-We want to test that this method will grab all of the tags from the repository,
-sort them into alphabetical order,
-and write their names into a string separated by new lines.
+Suppose we have an API for a file storage service.
+We want to list the names of all files,
+but the API limits the number of names it will return at a time.
+Therefore, we need to write some code that will keep making requests to the API
+until all names have been retrieved.
 
 .. code-block:: python
 
-    from nose.tools import assert_equals
+    def fetch_names(file_storage):
+        has_more = True
+        token = None
+        names = []
+        
+        while has_more:
+            response = file_storage.names(token=token)
+            names += response.names
+            token = response.next_token
+            has_more = token is not None
+        
+        return names    
+        
+
     import funk
-    from funk import expects
 
     @funk.with_mocks
-    def test_writes_all_tag_names_onto_separate_lines(mocks):
-        tag_repository = mocks.mock(TagRepository)
+    def test_request_for_names_until_all_names_are_fetched(mocks):
+        file_storage = mocks.mock(FileStorage)
         
-        expects(tag_repository).fetch_all(sorted=False) \
-            .returns([Tag('python'), Tag('debian')])
+        mocks.allows(file_storage).names(token=None).returns(mocks.data(
+            next_token="<token 1>",
+            names=["a", "b"],
+        ))
+        mocks.allows(file_storage).names(token="<token 1>").returns(mocks.data(
+            next_token="<token 2>",
+            names=["c", "d"],
+        ))
+        mocks.allows(file_storage).names(token="<token 2>").returns(mocks.data(
+            next_token=None,
+            names=["e"],
+        ))
         
-        tag_displayer = TagDisplayer(tag_repository)
-        assert_equals(tag_displayer.display_all(), 'python\ndebian')
+        assert fetch_names(file_storage) == ["a", "b", "c", "d", "e"]
 
-By using a mock object instead of a real instance of ``TagRepository``,
-we avoid relying on a correct implementation of ``TagRepository``.
-We can also run the test without a running database.
+By using a mock object instead of a real instance of ``FileStorage``,
+we can run our tests without a running instance of the file storage system.
+We also avoid relying on the implementation of ``FileStorage``,
+making our tests more focused and less brittle.

@@ -160,6 +160,9 @@ class Mocks(object):
             mock_factory = Mock
         self._mocks = []
         self._mock_factory = mock_factory
+        
+        for attr in ["allows", "expects", "data"]:
+            setattr(self, attr, globals()[attr])
     
     def mock(self, base=None, name=None):
         mock = self._mock_factory(base, self._generate_name(name, base))
@@ -186,3 +189,13 @@ class Mocks(object):
             else:
                 name.append(character)
         return ''.join(name)
+
+
+def data(**kwargs):
+    return Data(**kwargs)
+
+
+class Data(object):
+    def __init__(self, **kwargs):
+        for key, value in pycompat.iteritems(kwargs):
+            setattr(self, key, value)
