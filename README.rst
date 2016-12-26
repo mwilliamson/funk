@@ -36,7 +36,7 @@ and write their names into a string separated by new lines.
     def test_writes_all_tag_names_onto_separate_lines(mocks):
         tag_repository = mocks.mock(TagRepository)
         
-        expects(tag_repository).fetch_all(sorted=False)
+        expects(tag_repository).fetch_all(sorted=False) \
             .returns([Tag('python'), Tag('debian')])
         
         tag_displayer = TagDisplayer(tag_repository)
