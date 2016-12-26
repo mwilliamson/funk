@@ -149,7 +149,6 @@ def test_calling_call_registers_call_with_sequences():
             self.actual_calls.append(call)
             
     first_sequence = StubbedSequence()
-    second_sequence = StubbedSequence()
     call = Call('save').in_sequence(first_sequence)
     
     call()

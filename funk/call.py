@@ -2,8 +2,6 @@ from funk.error import FunkyError
 from funk.util import function_call_str
 from funk.util import function_call_str_multiple_lines
 from funk.matchers import to_matcher
-from funk.matchers import Matcher
-from funk.matchers import equal_to
 
 class InfiniteCallCount(object):
     def none_remaining(self):

@@ -2,6 +2,7 @@
 
 test:
 	sh -c '. _virtualenv/bin/activate; nosetests test'
+	_virtualenv/bin/pyflakes funk test
 	
 upload: setup
 	python setup.py sdist upload
