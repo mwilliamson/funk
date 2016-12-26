@@ -14,7 +14,7 @@ setup(
     long_description=read("README.rst"),
     author='Michael Williamson',
     author_email='mike@zwobble.org',
-    url='http://github.com/mwilliamson/funk',
+    url='https://github.com/mwilliamson/funk',
     packages=['funk'],
     keywords="mock",
     license='BSD License'
