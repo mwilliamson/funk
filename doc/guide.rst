@@ -134,7 +134,7 @@ tag returns :const:`False`::
     assert database.delete(number=42) is False
     
 While the above assertions will pass, we probably didn't want to allow those two
-final call. While we want to allow any tag to be used, we shouldn't allow
+final calls. While we want to allow any tag to be used, we shouldn't allow
 any arguments. To solve this problem, we can use a matcher like so::
 
     from precisely import instance_of
