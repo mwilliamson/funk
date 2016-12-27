@@ -1,4 +1,4 @@
-.PHONY: test upload clean bootstrap setup
+.PHONY: test test-all upload register clean bootstrap
 
 test:
 	sh -c '. _virtualenv/bin/activate; nosetests test'
