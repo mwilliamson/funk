@@ -1,10 +1,10 @@
 from nose.tools import assert_equals
 from precisely import equal_to
 
-from funk.tools import assert_raises_str
 from funk.error import FunkyError
 from funk.call import Call
 from funk.call import IntegerCallCount
+from .util import assert_raises_str
 
 def test_has_name_returns_true_if_passed_name_matches_method_name():
     call = Call('save')

@@ -1,15 +1,3 @@
-from nose.tools import assert_equals
-
-def assert_raises_str(exception, message, function, *args, **kwargs):
-    passed = True
-    try:
-        function(*args, **kwargs)
-        passed = False
-    except exception as e:
-        assert_equals(message, str(e))
-    if not passed:
-        raise AssertionError("%s was not raised" % exception.__name__)
-
 class ValueObject(object):
     def __init__(self, attributes):
         self._keys = attributes.keys()

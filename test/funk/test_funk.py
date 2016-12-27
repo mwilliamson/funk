@@ -7,8 +7,8 @@ from funk import expects
 from funk import allows
 from funk import expects_call
 from funk import allows_call
-from funk.tools import assert_raises_str
 from funk import UnexpectedInvocationError
+from .util import assert_raises_str
 
 
 @funk.with_mocks
