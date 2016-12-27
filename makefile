@@ -1,7 +1,7 @@
 .PHONY: test test-all upload register clean bootstrap
 
 test:
-	sh -c '. _virtualenv/bin/activate; py.test test'
+	sh -c '. _virtualenv/bin/activate; nosetests test'
 	_virtualenv/bin/pyflakes funk test
 	_virtualenv/bin/rst-lint README.rst
 
