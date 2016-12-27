@@ -5,3 +5,4 @@ doc/_build
 /_virtualenv
 /.tox
 /*.egg-info
+/.cache
