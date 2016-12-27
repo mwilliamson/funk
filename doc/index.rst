@@ -13,7 +13,6 @@ Contents:
    
    guide
    funk
-   tools
    cheat-sheet
 
 Indices and tables

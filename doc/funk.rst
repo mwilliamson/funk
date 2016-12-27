@@ -88,6 +88,16 @@
     Similar to :func:`funk.expects`, except that the method can be called
     any number of times, including none.
 
+.. function:: data(**kwargs)
+
+    Creates an object with attributes as specified by *kwargs*. For instance::
+    
+        author = value_object(first_name="Joe", last_name="Bloggs")
+        
+        assert author.first_name == "Joe"
+        assert author.last_name == "Bloggs"
+
+
 .. module:: funk.call
 
 .. class:: Call
