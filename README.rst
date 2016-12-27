@@ -62,3 +62,21 @@ By using a mock object instead of a real instance of ``FileStorage``,
 we can run our tests without a running instance of the file storage system.
 We also avoid relying on the implementation of ``FileStorage``,
 making our tests more focused and less brittle.
+
+If you're using pytest,
+the easiest way to use Funk is as a fixture:
+
+.. code-block:: python
+
+    import funk
+    import pytest
+    
+    @pytest.yield_fixture
+    def mocks():
+        mocks = funk.Mocks()
+        yield mocks
+        mocks.verify()
+    
+    def test_request_for_names_until_all_names_are_fetched(mocks):
+        file_storage = mocks.mock(FileStorage)
+        ...
