@@ -9,7 +9,7 @@ from funk.util import function_call_str
 from . import pycompat
 
 
-__all__ = ['with_mocks', 'Mocks', 'expects', 'allows', 'set_attr', 'expects_call', 'allows_call']
+__all__ = ['with_mocks', 'Mocks', 'expects', 'allows', 'expects_call', 'allows_call']
 
 class UnexpectedInvocationError(AssertionError):
     def __init__(self, mock_name, args, kwargs, expectations):
@@ -144,10 +144,6 @@ def allows(mock, method_name=None):
         return ExpectationCreator(lambda method_name: allows(mock, method_name))
     return object.__getattribute__(mock, "_mocked_calls").add_method_call(method_name, InfiniteCallCount())
     
-def set_attr(mock, **kwargs):
-    for kwarg in kwargs:
-        setattr(mock, kwarg, kwargs[kwarg])
-
 def expects_call(mock):
     return MethodArgumentsSetter(object.__getattribute__(mock, "_mocked_calls").add_function_call(IntegerCallCount(1)))
 

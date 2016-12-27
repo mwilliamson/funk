@@ -66,15 +66,6 @@
     can be matched only once, where the call created by :func:`~funk.allows` can
     be matched any number of times.
 
-.. function:: set_attr(mock, **kwargs)
-
-    Sets attributes on the mocked object. For instance::
-    
-        mock = mocks.mock()
-        set_attr(mock, key='word', something='else')
-        assert mock.key == 'word'
-        assert mock.something == 'else'
-
 .. function:: expects(mock)
 
     Create an object to expect a method call on *mock*.  If the method is not

@@ -1,25 +1,15 @@
 from nose.tools import assert_raises
-from nose.tools import assert_equals
 
 import funk
 from funk import FunkyError
 from funk import expects
 from funk import allows
-from funk import set_attr
 from funk import expects_call
 from funk import allows_call
 from funk.tools import assert_raises_str
 from funk.matchers import Matcher
 from funk import UnexpectedInvocationError
 
-@funk.with_mocks
-def test_can_set_attributes_on_mock_objects(mocks):
-    name = "the_blues"
-    mock = mocks.mock()
-    set_attr(mock, name=name)
-    
-    assert_equals(name, mock.name)
-    assert_equals(name, mock.name)
 
 @funk.with_mocks
 def test_allowing_a_method_without_specifying_arguments_allows_method_to_be_called_no_times(mocks):
