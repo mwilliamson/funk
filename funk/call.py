@@ -2,6 +2,8 @@ from funk.error import FunkyError
 from funk.util import function_call_str
 from funk.util import function_call_str_multiple_lines
 from funk.matchers import to_matcher
+from .pycompat import iteritems
+from .util import map_values
 
 class InfiniteCallCount(object):
     def none_remaining(self):
@@ -45,22 +47,23 @@ class Call(object):
         if not self._arguments_set:
             return True
             
-        def describe_arg(allowed, actual):
-            desc = []
-            if allowed.matches(actual, desc):
-                return "%s [matched]" % (allowed, )
+        def describe_arg(matcher, result):
+            if result.is_match:
+                explanation = "matched"
             else:
-                return "%s [%s]" % (allowed, ''.join(desc))
+                explanation = result.explanation
+            
+            return "%s [%s]" % (matcher.describe(), explanation)
         
-        def describe_kwargs(allowed_kwargs, actual_kwargs):
-            kwargs_desc = {}
-            for key in allowed_kwargs:
-                kwargs_desc[key] = describe_arg(allowed_kwargs[key], actual_kwargs[key])
-            return kwargs_desc
+        def describe_kwargs(kwarg_matches):
+            return dict(
+                (key, describe_arg(self._allowed_kwargs[key], result))
+                for key, result in kwarg_matches
+            )
         
-        def describe_mismatch():
-            args_desc = map(describe_arg, self._allowed_args, args)
-            kwargs_desc = describe_kwargs(self._allowed_kwargs, kwargs)
+        def describe_mismatch(arg_matches, kwarg_matches):
+            args_desc = map(describe_arg, self._allowed_args, arg_matches)
+            kwargs_desc = describe_kwargs(kwarg_matches)
             return function_call_str_multiple_lines(self._name, args_desc, kwargs_desc)
             
         if len(self._allowed_args) != len(args):
@@ -76,15 +79,20 @@ class Call(object):
         if len(extra_kwargs) > 0:
             mismatch_description.append("%s [unexpected keyword arguments: %s]" % (str(self), ", ".join(extra_kwargs)))
             return False
-            
-        if not all(map(lambda matcher, arg: matcher.matches(arg, []), self._allowed_args, args)):
-            mismatch_description.append(describe_mismatch())
-            return False
         
-        for key in self._allowed_kwargs:
-            if not self._allowed_kwargs[key].matches(kwargs[key], []):
-                mismatch_description.append(describe_mismatch())
-                return False
+        arg_matches = [
+            matcher.match(arg)
+            for matcher, arg in zip(self._allowed_args, args)
+        ]
+        kwarg_matches = [
+            (key, matcher.match(kwargs[key]))
+            for key, matcher in iteritems(self._allowed_kwargs)
+        ]
+        matches = arg_matches + [match for key, match in kwarg_matches]
+        
+        if not all(match.is_match for match in matches):
+            mismatch_description.append(describe_mismatch(arg_matches, kwarg_matches))
+            return False
                 
         return True
     
@@ -124,5 +132,9 @@ class Call(object):
 
     def __str__(self):
         if self._arguments_set:
-            return function_call_str(self._name, map(str, self._allowed_args), self._allowed_kwargs)
+            return function_call_str(
+                self._name,
+                [arg.describe() for arg in self._allowed_args],
+                map_values(lambda arg: arg.describe(), self._allowed_kwargs),
+            )
         return self._name

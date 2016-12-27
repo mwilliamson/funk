@@ -79,28 +79,13 @@ To use different constraints on arguments, use matchers. For instance, if
 we expect to save an instance of ``Tag`` with the attribute ``name`` set to
 ``"python"``, and we don't care what the value of the commit argument is::
 
-    from funk.matchers import is_a, has_attr, and, any_value
+    from precisely import instance_of, has_attrs, all_of, anything
     # ...
-    expects(database).save(and(is_a(Tag), has_attr(name="python")), commit=any_value())
+    expects(database).save(
+        all_of(instance_of(Tag), has_attrs(name="python")),
+        commit=anything(),
+    )
     
-+---------------------------+--------------------------------------------------------------------------------------------------------+
-| ``any_value()``           | Matches anything                                                                                       |
-+---------------------------+--------------------------------------------------------------------------------------------------------+
-| ``is_a(type_)``           | Matches ``actual`` if ``isinstance(actual, type_)``                                                    |
-+---------------------------+--------------------------------------------------------------------------------------------------------+
-| ``has_attr(**attrs)``     | Matches ``actual`` if, for each ``(key, value)`` pair in ``**attrs``, ``actual.key`` matches ``value`` |
-+---------------------------+--------------------------------------------------------------------------------------------------------+
-| ``equal_to(value)``       | Matches ``actual`` if ``actual == value``                                                              |
-+---------------------------+--------------------------------------------------------------------------------------------------------+
-| ``is_(value)``            | Matches ``actual`` if ``actual is value``                                                              |
-+---------------------------+--------------------------------------------------------------------------------------------------------+
-| ``not_(matcher)``         | Matches ``actual`` if ``matcher`` does not match ``actual``                                            |
-+---------------------------+--------------------------------------------------------------------------------------------------------+
-| ``all_of(*matchers)``     | Matches ``actual`` if, for each ``matcher`` in ``matchers``, ``matcher`` matches ``actual``            |
-+---------------------------+--------------------------------------------------------------------------------------------------------+
-| ``any_of(*matchers)``     | Matches ``actual`` if there is a matcher in ``matchers`` that matches ``actual``                       |
-+---------------------------+--------------------------------------------------------------------------------------------------------+
-
 Actions
 ^^^^^^^
 +------------------------------------+-----------------------------------------------------------------------+

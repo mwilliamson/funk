@@ -1,10 +1,10 @@
 from nose.tools import assert_equals
-from funk.tools import assert_raises_str
+from precisely import equal_to
 
+from funk.tools import assert_raises_str
 from funk.error import FunkyError
 from funk.call import Call
 from funk.call import IntegerCallCount
-from funk.matchers import Matcher
 
 def test_has_name_returns_true_if_passed_name_matches_method_name():
     call = Call('save')
@@ -93,12 +93,8 @@ def test_call_that_allows_any_number_of_calls_is_always_satisfied():
         call()
         
 def test_can_use_matchers_instead_of_values_for_positional_arguments_when_using_with_args():
-    class BlahMatcher(Matcher):
-        def matches(self, other, failure_output):
-            return other == "Blah"
-            
     return_value = "Whoopee!"
-    call = Call('save').with_args(BlahMatcher()).returns(return_value)
+    call = Call('save').with_args(equal_to("Blah")).returns(return_value)
     
     assert call.accepts(["Blah"], {}, [])
     assert not call.accepts([], {}, [])
@@ -108,12 +104,8 @@ def test_can_use_matchers_instead_of_values_for_positional_arguments_when_using_
     assert call("Blah") is return_value
 
 def test_can_use_matchers_instead_of_values_for_keyword_arguments_when_using_with_args():
-    class BlahMatcher(Matcher):
-        def matches(self, other, failure_output):
-            return other == "Blah"
-            
     return_value = "Whoopee!"
-    call = Call('save').with_args(value=BlahMatcher()).returns(return_value)
+    call = Call('save').with_args(value=equal_to("Blah")).returns(return_value)
     
     assert call.accepts([], {'value': 'Blah'}, [])
     assert not call.accepts([], {}, [])
@@ -171,7 +163,7 @@ def test_mismatch_description_indicates_whether_positional_arguments_matched_or_
     call = Call('save').with_args("apple", "banana")
     mismatch_description = []
     call.accepts(["coconut", "banana"], {}, mismatch_description)
-    assert_equals(''.join(mismatch_description), "save('apple' [got 'coconut'],\n     'banana' [matched])")
+    assert_equals(''.join(mismatch_description), "save('apple' [was 'coconut'],\n     'banana' [matched])")
 
 def test_mismatch_description_indicates_whether_keyword_argument_is_missing():
     call = Call('save').with_args(fruit="banana", vegetable="cucumber", salad="caesar")
@@ -184,11 +176,11 @@ def test_mismatch_description_indicates_whether_keyword_arguments_matched_or_not
     call = Call('save').with_args(vegetable="cucumber", fruit="banana")
     mismatch_description = []
     call.accepts([], {"vegetable": "cucumber", "fruit": "coconut"}, mismatch_description)
-    assert_equals(''.join(mismatch_description), "save(fruit='banana' [got 'coconut'],\n     vegetable='cucumber' [matched])")
+    assert_equals(''.join(mismatch_description), "save(fruit='banana' [was 'coconut'],\n     vegetable='cucumber' [matched])")
 
 def test_mismatch_description_shows_both_mismatching_positional_and_keyword_arguments():
     call = Call('save').with_args("eggs", "potatoes", vegetable="cucumber", fruit="banana")
     mismatch_description = []
     call.accepts(["duck", "potatoes"], {"vegetable": "cucumber", "fruit": "coconut"}, mismatch_description)
     assert_equals(''.join(mismatch_description),
-                  "save('eggs' [got 'duck'],\n     'potatoes' [matched],\n     fruit='banana' [got 'coconut'],\n     vegetable='cucumber' [matched])")
+                  "save('eggs' [was 'duck'],\n     'potatoes' [matched],\n     fruit='banana' [was 'coconut'],\n     vegetable='cucumber' [matched])")

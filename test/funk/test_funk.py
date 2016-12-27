@@ -1,4 +1,5 @@
 from nose.tools import assert_raises
+from precisely import equal_to
 
 import funk
 from funk import FunkyError
@@ -7,7 +8,6 @@ from funk import allows
 from funk import expects_call
 from funk import allows_call
 from funk.tools import assert_raises_str
-from funk.matchers import Matcher
 from funk import UnexpectedInvocationError
 
 
@@ -152,7 +152,7 @@ def test_argument_mismatches_are_show_on_separate_lines(mocks):
 """Unexpected invocation: database.save('Apples', 'Peaches')
 The following expectations on database.save did not match:
     database.save('Apples' [matched],
-                  'Bananas' [got 'Peaches'])""",
+                  'Bananas' [was 'Peaches'])""",
                       lambda: mock.save("Apples", "Peaches"))
 
 @funk.with_mocks
@@ -475,13 +475,9 @@ def test_if_mock_is_based_on_a_class_then_can_also_expect_methods_defined_on_sup
 
 @funk.with_mocks
 def test_can_use_matchers_instead_of_values_for_positional_arguments(mocks):
-    class BlahMatcher(Matcher):
-        def matches(self, other, failure_output):
-            return other == "Blah"
-            
     return_value = "Whoopee!"
     mock = mocks.mock()
-    expects(mock).save.with_args(BlahMatcher()).returns(return_value)
+    expects(mock).save.with_args(equal_to("Blah")).returns(return_value)
     
     assert_raises(UnexpectedInvocationError, lambda: mock.save())
     assert_raises(UnexpectedInvocationError, lambda: mock.save(key="word"))
@@ -492,13 +488,9 @@ def test_can_use_matchers_instead_of_values_for_positional_arguments(mocks):
     
 @funk.with_mocks
 def test_can_use_matchers_instead_of_values_for_keyword_arguments(mocks):
-    class BlahMatcher(Matcher):
-        def matches(self, other, failure_output):
-            return other == "Blah"
-            
     return_value = "Whoopee!"
     mock = mocks.mock()
-    expects(mock).save.with_args(value=BlahMatcher()).returns(return_value)
+    expects(mock).save.with_args(value=equal_to("Blah")).returns(return_value)
     
     assert_raises(UnexpectedInvocationError, lambda: mock.save())
     assert_raises(UnexpectedInvocationError, lambda: mock.save(key="word"))

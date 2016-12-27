@@ -10,11 +10,6 @@ def assert_raises_str(exception, message, function, *args, **kwargs):
     if not passed:
         raise AssertionError("%s was not raised" % exception.__name__)
 
-def assert_that(value, matcher):
-    mismatch_output = []
-    if not matcher.matches(value, mismatch_output):
-        raise AssertionError("Expected: %s\nbut: %s" % (matcher, ''.join(mismatch_output)))
-
 class ValueObject(object):
     def __init__(self, attributes):
         self._keys = attributes.keys()

@@ -118,15 +118,17 @@
             assert database.save('positional', key='word') is return_value
             database.save() # Raises AssertionError
         
-        Matchers can also be used to specify allowed arguments::
+        Matchers from Precisely_ can also be used to specify allowed arguments::
         
-            from funk.matchers import is_a
+            from precisely import instance_of
             
             ...
         
             calculator = mocks.mock()
-            allows(calculator).add(is_a(int), is_a(int)).returns(return_value)
+            allows(calculator).add(instance_of(int), instance_of(int)).returns(return_value)
             assert calculator.add(4, 9) is return_value
+            
+        .. _Precisely: https://pypi.python.org/pypi/precisely
     
     .. method:: raises(exception)
     

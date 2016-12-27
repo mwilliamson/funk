@@ -13,7 +13,6 @@ Contents:
    
    guide
    funk
-   matchers
    tools
    cheat-sheet
 

@@ -2,9 +2,7 @@ from nose.tools import assert_raises
 from nose.tools import assert_equals
 
 from funk.tools import assert_raises_str
-from funk.tools import assert_that
 from funk.tools import value_object
-from funk.matchers import Matcher
 
 def test_assert_raises_str_passes_if_test_raises_specified_exception_with_correct_message():
     def func():
@@ -35,37 +33,6 @@ def test_assert_raises_str_can_take_arguments_for_function_under_test():
             raise RuntimeError("Look out!")
             
     assert_raises(RuntimeError, lambda: assert_raises_str(TypeError, "Oh noes!", func, "Sir Galahad", number=42))
-
-def test_assert_that_passes_if_matcher_returns_true():
-    class TrueMatcher(Matcher):
-        def matches(self, value, failure_out):
-            return True
-            
-    assert_that("Anything", TrueMatcher())
-
-def test_assert_that_raises_assertion_error_if_matcher_returns_false():
-    class FalseMatcher(Matcher):
-        def matches(self, value, failure_out):
-            return False
-            
-    assert_raises(AssertionError, lambda: assert_that("Anything", FalseMatcher()))
-
-def test_assert_that_raises_assertion_error_describing_expected_and_actual_results():
-    class HasZeroLength(Matcher):
-        def matches(self, value, failure_out):
-            if len(value):
-                failure_out.append("got <value of length %s>" % len(value))
-                return False
-            
-            return True
-            
-        def __str__(self):
-            return "<value of length zero>"
-            
-    assert_that([], HasZeroLength())
-    assert_raises_str(AssertionError, 
-                      "Expected: <value of length zero>\nbut: got <value of length 8>",
-                      lambda: assert_that("Anything", HasZeroLength()))
 
 def test_value_object_sets_attributes_to_passed_keyword_arguments():
     obj = value_object(width=20, height=40)

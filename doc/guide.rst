@@ -137,13 +137,13 @@ While the above assertions will pass, we probably didn't want to allow those two
 final call. While we want to allow any tag to be used, we shouldn't allow
 any arguments. To solve this problem, we can use a matcher like so::
 
-    from funk.matcher import is_a
+    from precisely import instance_of
     ...
     
     database = mocks.mock('database')
     expects(database).delete(tag).returns(True)
     allows(database).delete(tag).returns(False)
-    allows(database).delete(is_a(Tag)).returns(False)
+    allows(database).delete(instance_of(Tag)).returns(False)
     
     # To demonstrate the behaviour of the mocked database
     assert database.delete(tag) is True

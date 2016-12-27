@@ -17,5 +17,6 @@ setup(
     url='https://github.com/mwilliamson/funk',
     packages=['funk'],
     keywords="mock",
+    install_requires=["precisely>=0.1.1"],
     license='BSD License'
 )
