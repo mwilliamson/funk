@@ -1,7 +1,12 @@
-sudo: false
+dist: xenial
 language: python
 python:
+  - "2.7"
+  - "3.4"
   - "3.5"
+  - "3.6"
+  - "3.7"
+  - "pypy"
 install:
-  - "pip install 'virtualenv<14.0.0' tox"
-script: tox
+  - "pip install tox"
+script: tox -e py
