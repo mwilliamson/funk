@@ -9,7 +9,7 @@ def read(path):
 
 setup(
     name='Funk',
-    version='0.4.0',
+    version='0.5.0',
     description='A mocking framework for Python',
     long_description=read("README.rst"),
     author='Michael Williamson',
