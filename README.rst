@@ -43,15 +43,15 @@ until all names have been retrieved.
     def test_request_for_names_until_all_names_are_fetched(mocks):
         file_storage = mocks.mock(FileStorage)
         
-        mocks.allows(file_storage).names(token=None).returns(mocks.data(
+        funk.allows(file_storage).names(token=None).returns(funk.data(
             next_token="<token 1>",
             names=["a", "b"],
         ))
-        mocks.allows(file_storage).names(token="<token 1>").returns(mocks.data(
+        funk.allows(file_storage).names(token="<token 1>").returns(funk.data(
             next_token="<token 2>",
             names=["c", "d"],
         ))
-        mocks.allows(file_storage).names(token="<token 2>").returns(mocks.data(
+        funk.allows(file_storage).names(token="<token 2>").returns(funk.data(
             next_token=None,
             names=["e"],
         ))
@@ -155,7 +155,6 @@ Setting expectations
 ^^^^^^^^^^^^^^^^^^^^
 
 To set up an expectation, use ``funk.allows()`` or ``funk.expects()``.
-For convenience, these functions are also available on ``Mocks``.
 ``funk.allows()`` will let the method be called any number of times, including none.
 ``funk.expects()`` will ensure that the method is called exactly once.
 For instance:
