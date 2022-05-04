@@ -1,23 +1,33 @@
-.PHONY: test test-all upload register clean bootstrap
+.PHONY: test
 
 test:
 	sh -c '. _virtualenv/bin/activate; nosetests test'
 	_virtualenv/bin/pyflakes funk test
 	_virtualenv/bin/rst-lint README.rst
 
+.PHONY: test-all
+
 test-all:
 	tox
 
-upload: setup test-all
-	_virtualenv/bin/python setup.py sdist bdist_wheel upload
+.PHONY: upload
+
+upload: test build-dist
+	_virtualenv/bin/twine upload dist/*
 	make clean
 
-register: setup
-	_virtualenv/bin/python setup.py register
+.PHONY: build-dist
+
+build-dist: clean
+	_virtualenv/bin/pyproject-build
+
+.PHONY: clean
 
 clean:
 	rm -f MANIFEST
-	rm -rf dist
+	rm -rf build dist
+
+.PHONY: bootstrap
 
 bootstrap: _virtualenv
 	_virtualenv/bin/pip install -e .
@@ -31,3 +41,4 @@ _virtualenv:
 	_virtualenv/bin/pip install --upgrade pip
 	_virtualenv/bin/pip install --upgrade setuptools
 	_virtualenv/bin/pip install --upgrade wheel
+	_virtualenv/bin/pip install --upgrade build twine
