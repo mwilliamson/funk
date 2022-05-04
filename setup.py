@@ -18,6 +18,6 @@ setup(
     packages=['funk'],
     keywords="mock",
     install_requires=["precisely>=0.1.1"],
-    python_requires='>=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*',
+    python_requires='>=3.5',
     license='BSD License'
 )
