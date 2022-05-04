@@ -1,5 +1,4 @@
-from nose.tools import assert_equals
-from precisely import equal_to
+from precisely import assert_that, equal_to
 
 from funk.error import FunkyError
 from funk.call import Call
@@ -63,7 +62,7 @@ def test_error_is_raised_if_called_too_many_times():
     call()
     call()
     assert_raises_str(FunkyError, "Cannot call any more times", lambda: call())
-    
+
 def test_error_is_raised_if_called_with_wrong_arguments():
     call = Call('save')
     call.with_args("positional")
@@ -80,22 +79,22 @@ def test_is_satisfied_if_called_as_many_times_as_initial_call_count():
 
 def test_str_of_call_with_no_arguments_only_has_name_of_call():
     call = Call('save')
-    assert_equals('save', str(call))
+    assert_that(str(call), equal_to('save'))
 
 def test_str_of_call_with_arguments_shows_those_arguments():
     call = Call('save').with_args("one", "two", foo="bar", key="word")
-    assert_equals("save('one', 'two', foo='bar', key='word')", str(call))
+    assert_that(str(call), equal_to("save('one', 'two', foo='bar', key='word')"))
 
 def test_call_that_allows_any_number_of_calls_is_always_satisfied():
     call = Call('save')
     for x in range(0, 1000):
         assert call.is_satisfied()
         call()
-        
+
 def test_can_use_matchers_instead_of_values_for_positional_arguments_when_using_with_args():
     return_value = "Whoopee!"
     call = Call('save').with_args(equal_to("Blah")).returns(return_value)
-    
+
     assert call.accepts(["Blah"], {}, [])
     assert not call.accepts([], {}, [])
     assert not call.accepts([], {'key': 'word'}, [])
@@ -106,7 +105,7 @@ def test_can_use_matchers_instead_of_values_for_positional_arguments_when_using_
 def test_can_use_matchers_instead_of_values_for_keyword_arguments_when_using_with_args():
     return_value = "Whoopee!"
     call = Call('save').with_args(value=equal_to("Blah")).returns(return_value)
-    
+
     assert call.accepts([], {'value': 'Blah'}, [])
     assert not call.accepts([], {}, [])
     assert not call.accepts([], {'key': 'word'}, [])
@@ -120,67 +119,74 @@ def test_calling_in_sequence_adds_call_to_sequence():
     class StubbedSequence(object):
         def __init__(self):
             self.calls = []
-        
+
         def add_expected_call(self, call):
             self.calls.append(call)
-        
+
     sequence = StubbedSequence()
     call = Call('save').in_sequence(sequence)
-    assert_equals(sequence.calls, [call])
+    assert_that(sequence.calls, equal_to([call]))
 
 def test_calling_call_registers_call_with_sequences():
     class StubbedSequence(object):
         def __init__(self):
             self.expected_calls = []
             self.actual_calls = []
-        
+
         def add_expected_call(self, call):
             self.expected_calls.append(call)
-            
+
         def add_actual_call(self, call):
             self.actual_calls.append(call)
-            
+
     first_sequence = StubbedSequence()
     call = Call('save').in_sequence(first_sequence)
-    
+
     call()
-    assert_equals(first_sequence.actual_calls, [call])
+    assert_that(first_sequence.actual_calls, equal_to([call]))
 
 def test_mismatch_description_indicates_when_expectation_has_already_been_satisfied():
     call = Call('save', IntegerCallCount(1)).with_args()
     call()
     mismatch_description = []
     call.accepts([], {}, mismatch_description)
-    assert_equals(''.join(mismatch_description), "save() [expectation has already been satisfied]")
+    assert_that(''.join(mismatch_description), equal_to("save() [expectation has already been satisfied]"))
 
 def test_mismatch_description_indicates_when_number_of_positional_arguments_is_wrong():
     call = Call('save').with_args()
     mismatch_description = []
     call.accepts(["banana"], {}, mismatch_description)
-    assert_equals(''.join(mismatch_description), "save() [wrong number of positional arguments]")
+    assert_that(''.join(mismatch_description), equal_to("save() [wrong number of positional arguments]"))
 
 def test_mismatch_description_indicates_whether_positional_arguments_matched_or_not():
     call = Call('save').with_args("apple", "banana")
     mismatch_description = []
     call.accepts(["coconut", "banana"], {}, mismatch_description)
-    assert_equals(''.join(mismatch_description), "save('apple' [was 'coconut'],\n     'banana' [matched])")
+    assert_that(''.join(mismatch_description), equal_to("save('apple' [was 'coconut'],\n     'banana' [matched])"))
 
 def test_mismatch_description_indicates_whether_keyword_argument_is_missing():
     call = Call('save').with_args(fruit="banana", vegetable="cucumber", salad="caesar")
     mismatch_description = []
     call.accepts([], {"fruit": "banana"}, mismatch_description)
-    assert_equals(''.join(mismatch_description),
-                  "save(fruit='banana', salad='caesar', vegetable='cucumber') [missing keyword arguments: salad, vegetable]")
+    assert_that(
+        ''.join(mismatch_description),
+        equal_to("save(fruit='banana', salad='caesar', vegetable='cucumber') [missing keyword arguments: salad, vegetable]"),
+    )
 
 def test_mismatch_description_indicates_whether_keyword_arguments_matched_or_not():
     call = Call('save').with_args(vegetable="cucumber", fruit="banana")
     mismatch_description = []
     call.accepts([], {"vegetable": "cucumber", "fruit": "coconut"}, mismatch_description)
-    assert_equals(''.join(mismatch_description), "save(fruit='banana' [was 'coconut'],\n     vegetable='cucumber' [matched])")
+    assert_that(
+        ''.join(mismatch_description),
+        equal_to("save(fruit='banana' [was 'coconut'],\n     vegetable='cucumber' [matched])"),
+    )
 
 def test_mismatch_description_shows_both_mismatching_positional_and_keyword_arguments():
     call = Call('save').with_args("eggs", "potatoes", vegetable="cucumber", fruit="banana")
     mismatch_description = []
     call.accepts(["duck", "potatoes"], {"vegetable": "cucumber", "fruit": "coconut"}, mismatch_description)
-    assert_equals(''.join(mismatch_description),
-                  "save('eggs' [was 'duck'],\n     'potatoes' [matched],\n     fruit='banana' [was 'coconut'],\n     vegetable='cucumber' [matched])")
+    assert_that(
+        ''.join(mismatch_description),
+        equal_to("save('eggs' [was 'duck'],\n     'potatoes' [matched],\n     fruit='banana' [was 'coconut'],\n     vegetable='cucumber' [matched])"),
+    )

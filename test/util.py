@@ -1,9 +1,9 @@
-from nose.tools import assert_equals
+from precisely import assert_that, equal_to
 
 
 def assert_raises_str(exception_type, expected_str, func):
     error = assert_raises(exception_type, func)
-    assert_equals(expected_str, str(error))
+    assert_that(str(error), equal_to(expected_str))
 
 
 def assert_raises(exception_type, func):
