@@ -7,7 +7,6 @@ from funk.call import IntegerCallCount
 from funk.call import InfiniteCallCount
 from funk.sequence import Sequence
 from funk.util import function_call_str
-from . import pycompat
 from .tools import data
 
 
@@ -17,7 +16,7 @@ class UnexpectedInvocationError(AssertionError):
     def __init__(self, mock_name, args, kwargs, expectations):
         args_str = map(repr, args)
         kwargs_str = {}
-        for key, value in pycompat.iteritems(kwargs):
+        for key, value in kwargs.items():
             kwargs_str[key] = repr(value)
         call_str = function_call_str(mock_name, args_str, kwargs_str)
         exception_str = ["Unexpected invocation: %s" % call_str]
